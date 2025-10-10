@@ -59,6 +59,7 @@ async function bootstrap() {
           'http://localhost:3000',
           'http://localhost:3099',
           'http://localhost:5173',
+          'http://localhost:4200',
         ]
       : process.env.ALLOWED_ORIGINS?.split(',') || false,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
