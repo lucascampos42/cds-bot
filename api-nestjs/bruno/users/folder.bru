@@ -1,0 +1,117 @@
+meta {
+  name: Usuários
+  type: folder
+}
+
+docs {
+  # Sistema de Usuários
+
+  Esta pasta contém todas as requisições relacionadas ao gerenciamento de usuários da aplicação.
+
+  ## Endpoints Disponíveis:
+
+  ### 👥 **Get All Users** - Listar Usuários
+  - **Método**: GET `/users`
+  - **Acesso**: Autenticado (JWT obrigatório)
+  - **Autorização**: Baseada em ownership e roles
+  - **Descrição**: Lista usuários com paginação e filtros
+
+  ### 👤 **Get User By ID** - Obter Usuário
+  - **Método**: GET `/users/{id}`
+  - **Acesso**: Autenticado (JWT obrigatório)
+  - **Autorização**: Ownership (próprios dados) ou roles superiores
+  - **Descrição**: Obtém dados detalhados de um usuário específico
+
+  ### ✏️ **Update User** - Atualizar Usuário
+  - **Método**: PATCH `/users/{id}`
+  - **Acesso**: Autenticado (JWT obrigatório)
+  - **Autorização**: Ownership (próprios dados) ou roles superiores
+  - **Descrição**: Atualiza dados do usuário (parcial)
+
+  ### 🗑️ **Delete User** - Excluir Usuário
+  - **Método**: DELETE `/users/{id}`
+  - **Acesso**: Autenticado (JWT obrigatório)
+  - **Autorização**: Ownership (próprios dados) ou roles superiores
+  - **Descrição**: Remove usuário do sistema
+
+  ### 🔐 **Create User (Admin)** - Criação Administrativa
+  - **Método**: POST `/users`
+  - **Acesso**: Apenas ADMIN (JWT + role verification)
+  - **Autorização**: Restrito a administradores
+  - **Descrição**: Cria usuários com privilégios avançados
+  - **Recursos**: Qualquer role, ativação imediata, controle de bloqueio
+
+  ## Sistema de Autorização:
+
+  ### 🏛️ **Hierarquia de Roles**
+  ```
+  SUPERADMIN > ADMIN > GERENTE > FUNCIONARIO > CLIENTE
+  ```
+
+  ### 🔒 **Ownership Guard**
+  - **CLIENTE**: Acesso apenas aos próprios dados
+  - **FUNCIONARIO**: Acesso ampliado (configurável)
+  - **GERENTE+**: Acesso total a usuários subordinados
+  - **ADMIN+**: Acesso total ao sistema
+
+  ### 🛡️ **Proteções Implementadas**
+  - Autenticação JWT obrigatória
+  - Verificação de ownership por ID
+  - Validação de hierarquia de roles
+  - Prevenção de escalação de privilégios
+  - Auditoria completa de operações
+
+  ## Diferenças entre Criação:
+
+  | Aspecto | Registro Público (`/auth/register`) | Criação Admin (`/users`) |
+  |---------|-------------------------------------|--------------------------|
+  | **Acesso** | Público | Apenas ADMIN |
+  | **Role** | Sempre CLIENTE | Qualquer role |
+  | **Ativação** | Email obrigatório | Configurável |
+  | **Validações** | Básicas | Avançadas |
+  | **Auditoria** | Limitada | Completa |
+
+  ## Códigos de Resposta:
+
+  ### ✅ **Sucesso**
+  - **200**: Operação realizada com sucesso
+  - **201**: Usuário criado com sucesso (apenas admin)
+
+  ### ⚠️ **Erro do Cliente**
+  - **400**: Dados inválidos fornecidos
+  - **401**: Token JWT ausente ou inválido
+  - **403**: Acesso negado (role insuficiente)
+  - **404**: Usuário não encontrado
+  - **409**: Conflito (dados já existem)
+
+  ### 🚨 **Erro do Servidor**
+  - **500**: Erro interno do servidor
+
+  ## Auditoria e Compliance:
+
+  - Todas as operações são registradas no audit trail
+  - Logs incluem usuário responsável, IP e timestamp
+  - Rastreabilidade completa para compliance
+  - Dados sensíveis são automaticamente sanitizados
+
+  ## Configuração de Ambiente:
+
+  ```env
+  # Configurações de Autorização
+  JWT_SECRET=your-secret-key
+  JWT_EXPIRES_IN=15m
+
+  # Configurações de Ownership
+  ENABLE_OWNERSHIP_GUARD=true
+  STRICT_OWNERSHIP_MODE=true
+  ```
+
+  ## Exemplos de Uso:
+
+  1. **Cliente**: Pode apenas visualizar/editar próprios dados
+  2. **Funcionário**: Acesso ampliado conforme configuração
+  3. **Gerente**: Pode gerenciar usuários subordinados
+  4. **Admin**: Acesso total + criação de usuários
+
+  Consulte cada endpoint individual para exemplos detalhados de requisições e respostas.
+}

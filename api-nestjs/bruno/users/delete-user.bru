@@ -1,0 +1,13 @@
+meta {
+  name: Delete User
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{host}}/users/1
+}
+
+headers {
+  Authorization: Bearer {{token}}
+}
