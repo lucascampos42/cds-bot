@@ -45,6 +45,9 @@ FROM oven/bun:1 AS runner
 
 WORKDIR /usr/src/app
 
+# Dependências de sistema (OpenSSL para Prisma em runtime)
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+
 # Copiar artefatos
 COPY --from=builder /usr/src/app/dist ./dist
 COPY --from=builder /usr/src/app/package*.json ./

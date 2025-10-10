@@ -8,7 +8,7 @@ services:
     ports:
       - "3000:3000"
     env_file:
-      - ./api-nestjs/.env
+      - ./api-nestjs/.env.docker
     environment:
       - PORT=3000
     # IMPORTANTE: Garanta que a variável DATABASE_URL no arquivo ./api-nestjs/.env
@@ -16,11 +16,9 @@ services:
     # DATABASE_URL="postgresql://admin:admin@postgres:5432/cds_bot?schema=public"
     depends_on:
       - postgres
-    volumes:
-      - ./api-nestjs:/usr/src/app
-      - /usr/src/app/node_modules
+    # Não montar o código-fonte em produção para não sobrescrever o build (dist) gerado na imagem
     command: >
-      sh -c "bunx prisma db push && bun run seed && bun ./dist/main.js"
+      sh -c "bunx prisma db push && bunx ts-node prisma/seed.ts && bun ./dist/main.js"
 
   frontend-angular:
     build:
@@ -36,9 +34,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-cds-bot}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
