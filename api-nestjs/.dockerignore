@@ -149,7 +149,7 @@ bruno/
 .aider*
 
 # Bun
-bun.lock
+# bun.lock (permitir no contexto para builds reprodutíveis)
 
 # Keep only .env.docker for Docker builds
 .env.example

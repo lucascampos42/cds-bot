@@ -9,6 +9,8 @@ services:
       - "3000:3000"
     env_file:
       - ./api-nestjs/.env
+    environment:
+      - PORT=3000
     # IMPORTANTE: Garanta que a variável DATABASE_URL no arquivo ./api-nestjs/.env
     # aponte para o serviço do postgres. Exemplo:
     # DATABASE_URL="postgresql://admin:admin@postgres:5432/cds_bot?schema=public"
@@ -17,6 +19,8 @@ services:
     volumes:
       - ./api-nestjs:/usr/src/app
       - /usr/src/app/node_modules
+    command: >
+      sh -c "bunx prisma db push && bun run seed && bun ./dist/main.js"
 
   frontend-angular:
     build:

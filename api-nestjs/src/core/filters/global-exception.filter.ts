@@ -80,7 +80,9 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
       if (typeof exceptionResponse === 'object') {
         const responseObj = exceptionResponse as HttpExceptionResponse;
-        message = responseObj.message || this.getStandardMessage(status);
+        message = Array.isArray(responseObj.message)
+          ? responseObj.message.join(', ')
+          : responseObj.message || this.getStandardMessage(status);
         error = responseObj.error || exception.name;
         details = responseObj.details;
       } else {

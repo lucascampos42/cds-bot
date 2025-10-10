@@ -1,73 +1,60 @@
-# Stage 1: Dependencies
-FROM node:22-alpine AS deps
+## Stage 1: Dependencies (Bun)
+FROM oven/bun:1 AS deps
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
-# Instalar dependências do sistema necessárias para Prisma
-RUN apk add --no-cache libc6-compat openssl
+# Dependências de sistema para Prisma
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
-# Copiar arquivos de dependências
+# Arquivos de dependências
 COPY package*.json ./
+COPY bun.lock bun.lock
 COPY prisma ./prisma/
 
-# Instalar dependências
-    RUN npm ci && npm cache clean --force
+# Instalação com Bun (forçada)
+RUN bun install --force
 
-# Stage 2: Build
-FROM node:22-alpine AS builder
+## Stage 2: Build (Bun)
+FROM oven/bun:1 AS builder
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
-# Instalar dependências do sistema
-RUN apk add --no-cache libc6-compat openssl
+# Dependências de sistema
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 # Copiar dependências da stage anterior
-COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /usr/src/app/node_modules ./node_modules
+COPY --from=deps /usr/src/app/bun.lock ./bun.lock
+COPY --from=deps /usr/src/app/prisma ./prisma
 COPY package*.json ./
-COPY prisma ./prisma/
 
 # Copiar código fonte
 COPY . .
 
-# Usar .env.docker para build se existir, senão usar .env.example
+# Selecionar arquivo de ambiente para geração do Prisma Client
 RUN if [ -f .env.docker ]; then cp .env.docker .env; else cp .env.example .env; fi
 
-# Gerar Prisma Client
-RUN npx prisma generate
+# Gerar Prisma Client (via bunx)
+RUN bunx prisma generate
 
-# Build da aplicação
-    RUN npx nest build
+# Build da aplicação (usa script "build": nest build)
+RUN bun run build
 
-# Stage 3: Production
-FROM node:22-alpine AS runner
+## Stage 3: Runtime (Bun)
+FROM oven/bun:1 AS runner
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
-# Instalar dependências do sistema para runtime
-RUN apk add --no-cache libc6-compat openssl dumb-init
-
-# Criar usuário não-root
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nestjs
-
-# Copiar arquivos necessários
-COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
-COPY --from=builder --chown=nestjs:nodejs /app/package*.json ./
-COPY --from=deps --chown=nestjs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nestjs:nodejs /app/prisma ./prisma
-
-# Copiar .env.docker se existir
-COPY --chown=nestjs:nodejs .env.docker ./.env
-
-USER nestjs
-
-EXPOSE 3099
+# Copiar artefatos
+COPY --from=builder /usr/src/app/dist ./dist
+COPY --from=builder /usr/src/app/package*.json ./
+COPY --from=deps /usr/src/app/node_modules ./node_modules
+COPY --from=builder /usr/src/app/prisma ./prisma
+COPY --from=builder /usr/src/app/bun.lock ./bun.lock
 
 ENV NODE_ENV=production
-ENV PORT=3099
+ENV PORT=3000
+EXPOSE 3000
 
-# Usar dumb-init para gerenciamento de processos
-ENTRYPOINT ["dumb-init", "--"]
-
-# Comando padrão (pode ser sobrescrito pelo docker-compose)
-CMD ["node", "dist/main"]
+# Comando padrão: executar app com Bun
+CMD ["bun", "./dist/main.js"]
