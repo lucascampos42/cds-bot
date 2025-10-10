@@ -18,7 +18,7 @@ services:
       - postgres
     # Não montar o código-fonte em produção para não sobrescrever o build (dist) gerado na imagem
     command: >
-      sh -c "bunx prisma db push && bunx ts-node prisma/seed.ts && bun ./dist/main.js"
+      sh -c "bunx prisma db push && bunx ts-node prisma/seed.ts && bun ./dist/src/main.js"
 
   frontend-angular:
     build:

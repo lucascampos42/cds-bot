@@ -59,5 +59,5 @@ ENV NODE_ENV=production
 ENV PORT=3000
 EXPOSE 3000
 
-# Comando padrão: executar app com Bun
-CMD ["bun", "./dist/main.js"]
+# Comando padrão: executar app com Bun (Nest compila em dist/src/main.js)
+CMD ["bun", "./dist/src/main.js"]

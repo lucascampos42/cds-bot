@@ -15,7 +15,7 @@ model User {
   cpf       String? @unique
   telefone  String?
   avatarUrl String?
-  role      Role    @default(CLIENTE)
+  role      Role    @default(USER)
 
   // --- Campos de Segurança ---
   password             String?
@@ -44,11 +44,9 @@ model User {
 }
 
 enum Role {
-  CLIENTE
-  FUNCIONARIO
-  GERENTE
+  USER
+  OPERATOR
   ADMIN
-  SUPERADMIN
 }
 
 model Log {
