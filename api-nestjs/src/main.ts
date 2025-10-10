@@ -83,7 +83,7 @@ async function bootstrap() {
 
   // Configuração do OpenAPI/Scalar
   const config = new DocumentBuilder()
-    .setTitle('NestJS Boilerplate API')
+    .setTitle('CDS-BOT API')
     .setDescription(
       `
       API robusta e escalável construída com NestJS, implementando:
@@ -149,7 +149,7 @@ async function bootstrap() {
         content: document,
       },
       configuration: {
-        title: 'NestJS Boilerplate API - Documentação',
+        title: 'CDS-BOT API - Documentação',
         theme: 'purple',
         layout: 'modern',
         defaultHttpClient: {

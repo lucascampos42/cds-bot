@@ -47,7 +47,9 @@ export class WhatsAppService implements OnModuleInit {
 
         if (qr) {
           this.qrString = qr;
-          this.logger.log('QR code atualizado. Use o endpoint GET /whatsapp/qr para obter o código.');
+          this.logger.log(
+            'QR code atualizado. Use o endpoint GET /whatsapp/qr para obter o código.',
+          );
         }
 
         if (connection === 'open') {
@@ -60,7 +62,9 @@ export class WhatsAppService implements OnModuleInit {
           this.connected = false;
           const statusCode = (lastDisconnect as any)?.error?.output?.statusCode;
           const reason = DisconnectReason[statusCode as number];
-          this.logger.warn(`Conexão encerrada. Razão: ${reason ?? statusCode ?? 'desconhecida'}`);
+          this.logger.warn(
+            `Conexão encerrada. Razão: ${reason ?? statusCode ?? 'desconhecida'}`,
+          );
         }
       });
     } catch (error) {
@@ -86,6 +90,10 @@ export class WhatsAppService implements OnModuleInit {
       throw new Error('Socket WhatsApp não inicializado');
     }
     const result = await this.sock.sendMessage(jid, { text });
-    return { messageId: result.key?.id, to: jid };
+    if (result) {
+      return { messageId: result.key?.id, to: jid };
+    } else {
+      return { messageId: null, to: jid, error: 'Falha ao enviar mensagem' };
+    }
   }
 }

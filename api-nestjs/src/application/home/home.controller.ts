@@ -1,7 +1,12 @@
-import { Controller, Get, Res } from '@nestjs/common';
+import { Controller, Get, Redirect, Res } from '@nestjs/common';
 import { HomeService } from './home.service';
 import { Response } from 'express';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiExcludeEndpoint,
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { IsPublic } from '../../core/decorators/is-public.decorator';
 
 @ApiTags('Home')
@@ -10,6 +15,14 @@ export class HomeController {
   constructor(private readonly homeService: HomeService) {}
 
   @Get()
+  @Redirect('/docs')
+  @ApiExcludeEndpoint()
+  @IsPublic()
+  root() {
+    // Este método redirecionará para /docs
+  }
+
+  @Get('home')
   @IsPublic()
   @ApiOperation({ summary: 'Obter informações da API' })
   @ApiResponse({

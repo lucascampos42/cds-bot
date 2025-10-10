@@ -1,7 +1,9 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { WhatsAppService } from './whatsapp.service';
 import { SendTextDto } from './dto/send-text.dto';
+import { IsPublic } from 'src/core/decorators/is-public.decorator';
 
+@IsPublic()
 @Controller({ path: 'whatsapp', version: '1' })
 export class WhatsAppController {
   constructor(private readonly whatsappService: WhatsAppService) {}

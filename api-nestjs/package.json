@@ -1,7 +1,7 @@
 {
-  "name": "nest-boilerplate",
+  "name": "cds-bot-api",
   "version": "0.0.1",
-  "description": "Express NestJS boilerplate with JWT authentication, Prisma ORM, and TypeScript.",
+  "description": "CDS-BOT API with JWT authentication, Prisma ORM, and TypeScript.",
   "author": "Lucas Campos",
   "private": true,
   "license": "UNLICENSED",
