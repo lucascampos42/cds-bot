@@ -129,18 +129,14 @@ export class UserMapper {
    */
   private static mapPrismaRoleToUserRole(prismaRole: PrismaRole): UserRole {
     switch (prismaRole) {
-      case PrismaRole.CLIENTE:
-        return UserRole.CLIENTE;
-      case PrismaRole.FUNCIONARIO:
-        return UserRole.FUNCIONARIO;
-      case PrismaRole.GERENTE:
-        return UserRole.GERENTE;
+      case PrismaRole.USER:
+        return UserRole.USER;
+      case PrismaRole.CLIENT:
+        return UserRole.CLIENT;
       case PrismaRole.ADMIN:
         return UserRole.ADMIN;
-      case PrismaRole.SUPERADMIN:
-        return UserRole.SUPERADMIN;
       default:
-        return UserRole.CLIENTE;
+        return UserRole.USER;
     }
   }
 
@@ -149,18 +145,14 @@ export class UserMapper {
    */
   private static mapUserRoleToPrismaRole(userRole: UserRole): PrismaRole {
     switch (userRole) {
-      case UserRole.CLIENTE:
-        return PrismaRole.CLIENTE;
-      case UserRole.FUNCIONARIO:
-        return PrismaRole.FUNCIONARIO;
-      case UserRole.GERENTE:
-        return PrismaRole.GERENTE;
+      case UserRole.USER:
+        return PrismaRole.USER;
+      case UserRole.CLIENT:
+        return PrismaRole.CLIENT;
       case UserRole.ADMIN:
         return PrismaRole.ADMIN;
-      case UserRole.SUPERADMIN:
-        return PrismaRole.SUPERADMIN;
       default:
-        return PrismaRole.CLIENTE;
+        return PrismaRole.USER;
     }
   }
 }

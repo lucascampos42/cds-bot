@@ -29,9 +29,9 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/styles.scss"
-            ]
+          "styles": [
+            "src/styles.scss"
+          ]
           },
           "configurations": {
             "production": {
@@ -87,12 +87,15 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/styles.scss"
-            ]
+          "styles": [
+            "src/styles.scss"
+          ]
           }
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "29d029cd-e046-4709-80cf-ee1f126aa2c3"
   }
 }

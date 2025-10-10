@@ -97,11 +97,9 @@ export class UserEntity {
  * Enum para os papéis do usuário
  */
 export enum UserRole {
-  CLIENTE = 'CLIENTE',
-  FUNCIONARIO = 'FUNCIONARIO',
-  GERENTE = 'GERENTE',
+  USER = 'USER',
+  CLIENT = 'CLIENT',
   ADMIN = 'ADMIN',
-  SUPERADMIN = 'SUPERADMIN',
 }
 
 /**

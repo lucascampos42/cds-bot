@@ -31,24 +31,15 @@ export class OwnershipGuard implements CanActivate {
       throw new ForbiddenException('Usuário não autenticado');
     }
 
-    // Hierarquia de acesso: SUPERADMIN, ADMIN, GERENTE têm acesso total
-    const hasFullAccess = [Role.SUPERADMIN, Role.ADMIN, Role.GERENTE].includes(
-      user.role,
-    );
+    // Apenas ADMIN possui acesso total sem restrições de ownership
+    const hasFullAccess = user.role === Role.ADMIN;
 
     if (hasFullAccess) {
       return true;
     }
 
-    // FUNCIONARIO: acesso restritivo (definir regras específicas)
-    if (user.role === Role.FUNCIONARIO) {
-      // Por enquanto, FUNCIONARIO pode acessar qualquer recurso
-      // Aqui você pode implementar regras específicas para FUNCIONARIO
-      return true;
-    }
-
-    // CLIENTE: só pode acessar próprios dados
-    if (user.role === Role.CLIENTE) {
+    // CLIENT/USER: só podem acessar seus próprios dados
+    if (user.role === Role.CLIENT || user.role === Role.USER) {
       if (!resourceId) {
         throw new ForbiddenException('ID do recurso é obrigatório');
       }
