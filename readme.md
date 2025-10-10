@@ -99,7 +99,7 @@ O projeto está organizado em um monorepo. A estrutura de pastas foi ajustada pa
 │   ├── nest-cli.json
 │   └── package.json
 │
-├── frontend-angular/        # Projeto do Frontend em Angular
+├── front-angular/           # Projeto do Frontend em Angular
 │   ├── src/                 # Código fonte do Angular
 │   ├── angular.json         # Configuração do Angular CLI
 │   └── package.json         # Dependências do projeto
@@ -115,7 +115,7 @@ O projeto está organizado em um monorepo. A estrutura de pastas foi ajustada pa
 ### 5. Modelo de Autenticação e Autorização (RBAC)
 
 **1. Autenticação (Quem é você?)**
-- O usuário envia `email` e `senha` para o endpoint `POST /auth/login`.
+- O usuário envia `identification` e `senha` para o endpoint `POST /auth/login`.
 - O NestJS (usando `Passport.js`) valida as credenciais.
 - Se válidas, um **JSON Web Token (JWT)** é gerado e retornado, contendo `userId` e `roles`.
 - O Frontend Angular armazena este JWT e o envia no cabeçalho `Authorization` de todas as requisições futuras.
@@ -179,7 +179,7 @@ export class WorkflowsController {
 **Acessando os Serviços:**
 
   - **Frontend (Angular):** `http://localhost:4200`
-  - **Backend API (NestJS):** `http://localhost:3000`
+  - **Backend API (NestJS):** `http://localhost:3099`
   - **Painel n8n:** `http://localhost:5678`
 
 <!-- end list -->

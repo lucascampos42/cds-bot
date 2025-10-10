@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  api-nestjs:
+    build:
+      context: ./api-nestjs
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./api-nestjs/.env
+    # IMPORTANTE: Garanta que a variável DATABASE_URL no arquivo ./api-nestjs/.env
+    # aponte para o serviço do postgres. Exemplo:
+    # DATABASE_URL="postgresql://admin:admin@postgres:5432/cds_bot?schema=public"
+    depends_on:
+      - postgres
+    volumes:
+      - ./api-nestjs:/usr/src/app
+      - /usr/src/app/node_modules
+
+  frontend-angular:
+    build:
+      context: ./front-angular
+      dockerfile: Dockerfile
+    ports:
+      - "4200:80"
+    depends_on:
+      - api-nestjs
+
+  postgres:
+    image: postgres:13
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  n8n:
+    image: n8nio/n8n
+    ports:
+      - "5678:5678"
+    environment:
+      - GENERIC_TIMEZONE=${GENERIC_TIMEZONE:-America/Sao_Paulo}
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+volumes:
+  postgres_data:
+  n8n_data:
