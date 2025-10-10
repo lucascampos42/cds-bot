@@ -9,11 +9,9 @@ export class RolesGuard implements CanActivate {
 
   // Hierarquia de roles: maior número = maior privilégio
   private readonly roleHierarchy = {
-    [Role.CLIENTE]: 1,
-    [Role.FUNCIONARIO]: 2,
-    [Role.GERENTE]: 3,
-    [Role.ADMIN]: 4,
-    [Role.SUPERADMIN]: 5,
+    [Role.USER]: 1,
+    [Role.CLIENT]: 2,
+    [Role.ADMIN]: 3,
   };
 
   canActivate(context: ExecutionContext): boolean {
