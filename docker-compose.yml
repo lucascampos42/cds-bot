@@ -11,14 +11,11 @@ services:
       - ./api-nestjs/.env.docker
     environment:
       - PORT=3000
-    # IMPORTANTE: Garanta que a variável DATABASE_URL no arquivo ./api-nestjs/.env
-    # aponte para o serviço do postgres. Exemplo:
-    # DATABASE_URL="postgresql://admin:admin@postgres:5432/cds_bot?schema=public"
     depends_on:
       - postgres
     # Não montar o código-fonte em produção para não sobrescrever o build (dist) gerado na imagem
     command: >
-      sh -c "bunx prisma db execute --file prisma/patches/2025-10-10-role-value-migration.sql --schema prisma/schema.prisma && bunx prisma db push --accept-data-loss && bunx ts-node prisma/seed.ts && bun ./dist/src/main.js"
+      sh -c "bunx prisma db push --accept-data-loss && bunx prisma db execute --file prisma/patches/2025-10-10-role-value-migration.sql --schema prisma/schema.prisma && bunx ts-node prisma/seed.ts && bun ./dist/src/main.js"
 
   frontend-angular:
     build:
