@@ -19,7 +19,7 @@ export class UserRepository implements IUserRepository {
         cpf: data.cpf ?? null,
         telefone: data.telefone ?? null,
         avatarUrl: data.avatarUrl ?? null,
-        role: data.role ?? Role.CLIENTE,
+        role: data.role ?? Role.CLIENT,
         active: data.active ?? false,
       },
     });

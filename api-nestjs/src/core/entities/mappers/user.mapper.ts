@@ -50,7 +50,7 @@ export class UserMapper {
       cpf: userEntity.cpf || null,
       telefone: userEntity.telefone || null,
       avatarUrl: userEntity.avatarUrl || null,
-      role: this.mapUserRoleToPrismaRole(userEntity.role || UserRole.CLIENTE),
+      role: this.mapUserRoleToPrismaRole(userEntity.role || UserRole.CLIENT),
       password: userEntity.password || null,
       lastLogin: userEntity.lastLogin || null,
       tokenVersion: userEntity.tokenVersion || 1,

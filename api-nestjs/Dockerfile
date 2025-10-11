@@ -51,7 +51,7 @@ RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 # Copiar artefatos
 COPY --from=builder /usr/src/app/dist ./dist
 COPY --from=builder /usr/src/app/package*.json ./
-COPY --from=deps /usr/src/app/node_modules ./node_modules
+COPY --from=builder /usr/src/app/node_modules ./node_modules
 COPY --from=builder /usr/src/app/prisma ./prisma
 COPY --from=builder /usr/src/app/bun.lock ./bun.lock
 

@@ -53,7 +53,9 @@ import { WhatsAppModule } from './application/whatsapp/whatsapp.module';
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET || 'default-secret',
-      signOptions: { expiresIn: process.env.JWT_ACCESS_TTL || '1h' },
+      // NestJS v11 typings for expiresIn expect a specific StringValue type or number.
+      // Casting avoids TS mismatch when using string env values like "15m".
+      signOptions: { expiresIn: (process.env.JWT_ACCESS_TTL || '1h') as any },
     }),
     PrismaModule,
     CoreAuditModule,

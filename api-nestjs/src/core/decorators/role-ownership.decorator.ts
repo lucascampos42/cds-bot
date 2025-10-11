@@ -16,15 +16,8 @@ export const RoleOwnership = (
  * Shortcuts para casos comuns de uso
  */
 export const AdminOnly = () => RoleOwnership([Role.ADMIN], false);
-export const ManagerAndAbove = () =>
-  RoleOwnership([Role.GERENTE, Role.ADMIN], false);
+export const ManagerAndAbove = () => RoleOwnership([Role.ADMIN], false);
 export const AllRolesWithOwnership = () =>
-  RoleOwnership(
-    [Role.CLIENTE, Role.FUNCIONARIO, Role.GERENTE, Role.ADMIN],
-    true,
-  );
+  RoleOwnership([Role.USER, Role.CLIENT, Role.ADMIN], true);
 export const AllRoles = () =>
-  RoleOwnership(
-    [Role.CLIENTE, Role.FUNCIONARIO, Role.GERENTE, Role.ADMIN],
-    false,
-  );
+  RoleOwnership([Role.USER, Role.CLIENT, Role.ADMIN], false);

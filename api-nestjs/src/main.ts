@@ -90,7 +90,7 @@ async function bootstrap() {
       
       🔐 **Segurança:**
       - Autenticação JWT com refresh tokens
-      - Sistema de roles hierárquico (CLIENTE → FUNCIONARIO → GERENTE → ADMIN → SUPERADMIN)
+      - Sistema de roles (USER → CLIENT → ADMIN)
       - Rate limiting e proteção contra força bruta
       - Validação automática de entrada
       

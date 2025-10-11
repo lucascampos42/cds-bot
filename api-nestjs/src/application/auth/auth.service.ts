@@ -8,7 +8,7 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ActivateAccountDto } from './dto/activate-account.dto';
 import * as crypto from 'crypto';
-import { User } from '@prisma/client';
+import { User, Role } from '@prisma/client';
 import { MailService } from '../../core/mail/mail.service';
 import { ValidationUtils } from '../../core/utils/validation.utils';
 import {
@@ -68,7 +68,8 @@ export class AuthService {
       type: 'refresh',
     };
     return this.jwtService.signAsync(payload, {
-      expiresIn: this.getRefreshTokenExpiry(),
+      // Casting para compatibilidade com typings do NestJS v11
+      expiresIn: this.getRefreshTokenExpiry() as any,
       secret:
         this.configService.get<string>('JWT_REFRESH_SECRET') ||
         process.env.JWT_SECRET ||
@@ -136,7 +137,7 @@ export class AuthService {
       cpf: registerDto.cpf || null,
       telefone: registerDto.telefone || null,
       avatarUrl: null,
-      role: 'CLIENTE',
+      role: Role.CLIENT,
       password: hashedPassword,
       active: false,
       activationToken,

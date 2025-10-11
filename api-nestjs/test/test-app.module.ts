@@ -24,7 +24,8 @@ import { ResponseFormatInterceptor } from '../src/core/interceptors/response-for
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET || 'test-secret',
-      signOptions: { expiresIn: process.env.JWT_ACCESS_TTL || '1h' },
+      // Casting para compatibilidade com typings do NestJS v11
+      signOptions: { expiresIn: (process.env.JWT_ACCESS_TTL || '1h') as any },
     }),
     AuthModule,
     UserModule,
