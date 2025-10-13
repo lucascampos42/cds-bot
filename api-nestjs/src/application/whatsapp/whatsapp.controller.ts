@@ -1,29 +1,51 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
-import { WhatsAppService } from './whatsapp.service';
+import { Body, Controller, Get, Post, Param, Delete } from '@nestjs/common';
+import { WhatsAppInstanceManager } from './whatsapp-instance-manager.service';
 import { SendTextDto } from './dto/send-text.dto';
 
 @Controller({ path: 'whatsapp', version: '1' })
 export class WhatsAppController {
-  constructor(private readonly whatsappService: WhatsAppService) {}
+  constructor(private readonly instanceManager: WhatsAppInstanceManager) {}
 
-  @Get('status')
-  getStatus() {
-    return this.whatsappService.getStatus();
+  @Post('instances/:instanceId')
+  async createInstance(@Param('instanceId') instanceId: string) {
+    const instance = await this.instanceManager.createInstance(instanceId);
+    return instance.getStatus();
   }
 
-  @Get('qr')
-  getQr() {
-    return this.whatsappService.getQr();
+  @Get('instances')
+  getAllInstancesStatus() {
+    return this.instanceManager.getAllInstancesStatus();
   }
 
-  @Get('reconnect')
-  reconnect() {
-    return this.whatsappService.reconnect();
+  @Get('instances/:instanceId/status')
+  getStatus(@Param('instanceId') instanceId: string) {
+    const instance = this.instanceManager.getInstance(instanceId);
+    return instance.getStatus();
   }
 
-  @Post('send-text')
-  async sendText(@Body() body: SendTextDto) {
+  @Get('instances/:instanceId/qr')
+  getQr(@Param('instanceId') instanceId: string) {
+    const instance = this.instanceManager.getInstance(instanceId);
+    return instance.getQr();
+  }
+
+  @Get('instances/:instanceId/reconnect')
+  reconnect(@Param('instanceId') instanceId: string) {
+    return this.instanceManager.reconnect(instanceId);
+  }
+  
+  @Delete('instances/:instanceId')
+  closeInstance(@Param('instanceId') instanceId: string) {
+    return this.instanceManager.closeInstance(instanceId);
+  }
+
+  @Post('instances/:instanceId/send-text')
+  async sendText(
+    @Param('instanceId') instanceId: string,
+    @Body() body: SendTextDto,
+  ) {
     const { jid, text } = body;
-    return this.whatsappService.sendText(jid, text);
+    const instance = this.instanceManager.getInstance(instanceId);
+    return instance.sendText(jid, text);
   }
 }
