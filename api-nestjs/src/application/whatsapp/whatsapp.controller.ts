@@ -16,6 +16,11 @@ export class WhatsAppController {
     return this.whatsappService.getQr();
   }
 
+  @Get('reconnect')
+  reconnect() {
+    return this.whatsappService.reconnect();
+  }
+
   @Post('send-text')
   async sendText(@Body() body: SendTextDto) {
     const { jid, text } = body;
