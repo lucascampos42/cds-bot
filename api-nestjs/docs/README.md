@@ -4,6 +4,16 @@ Esta pasta contém documentações específicas e guias de uso para diferentes c
 
 ## 📚 Documentações Disponíveis
 
+### [WHATSAPP.md](./WHATSAPP.md)
+**Módulo WhatsApp - Guia de Uso**
+
+Documentação completa sobre o módulo de múltiplas instâncias do WhatsApp.
+
+**Conteúdo:**
+- Arquitetura do módulo
+- Endpoints da API para gerenciamento de instâncias
+- Exemplos de requisição e resposta
+
 ### [RESPONSE_HELPER.md](./RESPONSE_HELPER.md)
 **ResponseHelper - Guia de Uso**
 
