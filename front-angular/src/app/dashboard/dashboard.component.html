@@ -1,0 +1,32 @@
+<div class="p-grid p-justify-center p-align-center" style="height: 100%;">
+  <div class="p-col-12 p-md-6 p-lg-4">
+    <div class="card">
+      <div class="p-card-header">
+        <h2 class="p-card-title">WhatsApp Connection</h2>
+      </div>
+      <div class="p-card-content">
+        <div *ngIf="isConnected; else notConnected">
+          <div class="p-d-flex p-flex-column p-align-center">
+            <i class="pi pi-check-circle" style="font-size: 3rem; color: var(--green-500);"></i>
+            <p class="p-mt-2">WhatsApp is connected.</p>
+          </div>
+        </div>
+        <ng-template #notConnected>
+          <div *ngIf="qrCodeData; else noQrCode">
+            <div class="p-d-flex p-flex-column p-align-center">
+              <h3>Scan QR Code</h3>
+              <qrcode [qrdata]="qrCodeData" [width]="256" [errorCorrectionLevel]="'M'"></qrcode>
+              <p class="p-mt-2">Scan this QR code with your phone to connect.</p>
+            </div>
+          </div>
+          <ng-template #noQrCode>
+            <div class="p-d-flex p-flex-column p-align-center">
+              <i class="pi pi-spin pi-spinner" style="font-size: 3rem;"></i>
+              <p class="p-mt-2">Waiting for QR code...</p>
+            </div>
+          </ng-template>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</div>
