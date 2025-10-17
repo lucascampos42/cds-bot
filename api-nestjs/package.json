@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build && bun run build:seed",
-    "build:seed": "tsc --project tsconfig.json prisma/seed.ts",
+    "build:seed": "tsc --project tsconfig.seed.json",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "npx prisma:generate && nest start --watch",
