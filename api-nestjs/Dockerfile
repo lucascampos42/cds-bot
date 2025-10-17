@@ -45,8 +45,8 @@ FROM oven/bun:1 AS runner
 
 WORKDIR /usr/src/app
 
-# Instalar dependências de sistema para o PostgreSQL client, OpenSSL e dos2unix
-RUN apt-get update && apt-get install -y postgresql-client openssl dos2unix && rm -rf /var/lib/apt/lists/*
+# Instalar dependências de sistema para o PostgreSQL client e OpenSSL
+RUN apt-get update && apt-get install -y postgresql-client openssl && rm -rf /var/lib/apt/lists/*
 
 # Copiar artefatos da build
 COPY --from=builder /usr/src/app/dist ./dist
@@ -57,9 +57,9 @@ COPY --from=builder /usr/src/app/bun.lock ./bun.lock
 # Copiar o schema do Prisma e o seed script compilado
 COPY --from=builder /usr/src/app/prisma ./prisma
 
-# Copiar, converter e dar permissão de execução para o entrypoint
+# Copiar, corrigir permissões e dar permissão de execução para o entrypoint
 COPY docker-entrypoint.sh /usr/local/bin/
-RUN dos2unix /usr/local/bin/docker-entrypoint.sh && chmod +x /usr/local/bin/docker-entrypoint.sh
+RUN sed -i 's/\r$//g' /usr/local/bin/docker-entrypoint.sh && chmod +x /usr/local/bin/docker-entrypoint.sh
 
 ENV NODE_ENV=production
 ENV PORT=3000
