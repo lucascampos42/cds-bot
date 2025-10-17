@@ -1,8 +1,10 @@
 import { Body, Controller, Get, Post, Param, Delete } from '@nestjs/common';
 import { WhatsAppInstanceManager } from './whatsapp-instance-manager.service';
 import { SendTextDto } from './dto/send-text.dto';
+import { IsPublic } from '../../core/decorators/is-public.decorator';
 
 @Controller({ path: 'whatsapp', version: '1' })
+@IsPublic()
 export class WhatsAppController {
   constructor(private readonly instanceManager: WhatsAppInstanceManager) {}
 
@@ -33,7 +35,7 @@ export class WhatsAppController {
   reconnect(@Param('instanceId') instanceId: string) {
     return this.instanceManager.reconnect(instanceId);
   }
-  
+
   @Delete('instances/:instanceId')
   closeInstance(@Param('instanceId') instanceId: string) {
     return this.instanceManager.closeInstance(instanceId);
