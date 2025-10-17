@@ -4,14 +4,11 @@ services:
   api-nestjs:
     build:
       context: ./api-nestjs
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
     env_file:
       - ./api-nestjs/.env.docker
-    environment:
-      - PORT=3000
-      - NODE_ENV=development
     volumes:
       - ./api-nestjs:/usr/src/app
       - /usr/src/app/node_modules
