@@ -66,5 +66,5 @@ ENV PORT=3000
 EXPOSE 3000
 
 # Definir o entrypoint e o comando padrão
-ENTRYPOINT ["docker-entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["bun", "./dist/src/main.js"]
