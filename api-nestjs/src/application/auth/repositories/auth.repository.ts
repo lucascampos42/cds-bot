@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { User } from '../../../generated/prisma-client';
 import { PrismaService } from '../../../core/config/prisma.service';
 import { IAuthRepository } from './auth.repository.interface';
 

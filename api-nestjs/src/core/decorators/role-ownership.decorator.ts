@@ -1,7 +1,7 @@
 import { applyDecorators } from '@nestjs/common';
 import { Roles } from './roles.decorator';
 import { RequireOwnership } from './ownership.decorator';
-import { Role } from '@prisma/client';
+import { Role } from '../../generated/prisma-client';
 
 /**
  * Decorator combinado para aplicar roles e ownership em uma única linha

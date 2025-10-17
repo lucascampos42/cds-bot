@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
-import { User } from '@prisma/client';
+import { User } from '../../generated/prisma-client';
 
 @Injectable()
 export class MailService {

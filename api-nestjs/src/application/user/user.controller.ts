@@ -21,7 +21,7 @@ import {
 } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { UpdateUserDto } from '../auth/dto/update-auth.dto';
-import { Role } from '@prisma/client';
+import { Role } from '../../generated/prisma-client';
 import { BlockUserDto } from './dto/block-user.dto';
 import { CreateUserAdminDto } from './dto/create-user-admin.dto';
 import { OwnershipGuard } from '../../core/guards/ownership.guard';

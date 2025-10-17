@@ -11,7 +11,7 @@ import {
   PrismaClientUnknownRequestError,
   PrismaClientValidationError,
   PrismaClientInitializationError,
-} from '@prisma/client/runtime/library';
+} from '../../generated/prisma-client/runtime/library';
 
 interface PrismaErrorResponse {
   statusCode: number;

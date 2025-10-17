@@ -10,7 +10,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../core/guards/jwt-auth.guard';
 import { RolesGuard } from '../../core/guards/roles.guard';
 import { Roles } from '../../core/decorators/roles.decorator';
-import { Role } from '@prisma/client';
+import { Role } from '../../generated/prisma-client';
 import { PerformanceMetricsService } from '../../core/monitoring/performance-metrics.service';
 import { ResponseHelper } from '../../core/utils/response-helper';
 

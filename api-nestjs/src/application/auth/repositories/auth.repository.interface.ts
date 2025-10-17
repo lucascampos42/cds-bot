@@ -1,4 +1,4 @@
-import { User } from '@prisma/client';
+import { User } from '../../../generated/prisma-client';
 
 export const AUTH_REPOSITORY_TOKEN = 'AUTH_REPOSITORY_TOKEN';
 

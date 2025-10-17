@@ -10,8 +10,14 @@ import {
   IsNotEmpty,
   IsUrl,
 } from 'class-validator';
-import { Role } from '@prisma/client';
 import { IsCpf } from '../../../core/validators/cpf.validator';
+
+// Definição local do Enum para evitar dependência circular em tempo de execução
+export enum Role {
+  USER = 'USER',
+  CLIENT = 'CLIENT',
+  ADMIN = 'ADMIN',
+}
 
 export class CreateUserDto {
   @IsString({ message: 'Nome de usuário deve ser uma string' })

@@ -60,7 +60,7 @@ describe('UserController (e2e)', () => {
         name: 'Regular User',
         email: 'regular-e2e@example.com',
         password: regularUserPassword,
-        role: Role.CLIENTE,
+        role: Role.CLIENT,
         active: true,
         tokenVersion: 1,
       },

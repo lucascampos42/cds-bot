@@ -16,7 +16,7 @@ import {
 } from '@nestjs/swagger';
 import { RolesGuard } from '../../core/guards/roles.guard';
 import { Roles } from '../../core/decorators/roles.decorator';
-import { Role, AuditAction } from '@prisma/client';
+import { Role, AuditAction } from '../../generated/prisma-client';
 import { AuditTrailService } from '../../core/audit/audit-trail.service';
 import { AuditLogEntity } from '../../core/entities/audit-log.entity';
 

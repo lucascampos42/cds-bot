@@ -5,7 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UnauthorizedException } from '../../core/exceptions/custom-exceptions';
 import * as bcrypt from 'bcrypt';
-import { User, Role } from '@prisma/client';
+import { User, Role } from '../../generated/prisma-client';
 import { MailService } from '../../core/mail/mail.service';
 import { PrismaService } from '../../core/config/prisma.service';
 import { CreateUserDto } from './dto/create-auth.dto';
@@ -196,7 +196,7 @@ describe('AuthService', () => {
         cpf: null,
         telefone: null,
         avatarUrl: null,
-        role: Role.CLIENTE,
+        role: Role.CLIENT,
         active: true,
         blocked: false,
         blockedUntil: null,
@@ -247,7 +247,7 @@ describe('AuthService', () => {
         cpf: null,
         telefone: null,
         avatarUrl: null,
-        role: Role.CLIENTE,
+        role: Role.CLIENT,
         active: true,
         blocked: false,
         blockedUntil: null,

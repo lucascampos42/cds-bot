@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from '../auth/dto/create-auth.dto';
 import { CreateUserAdminDto } from './dto/create-user-admin.dto';
-import { User, Role } from '@prisma/client';
+import { User, Role } from '../../generated/prisma-client';
 import { IUserRepository } from './repositories/user.repository.interface';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';

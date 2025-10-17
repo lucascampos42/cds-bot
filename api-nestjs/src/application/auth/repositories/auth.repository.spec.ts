@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthRepository } from './auth.repository';
 import { PrismaService } from '../../../core/config/prisma.service';
-import { User, Role } from '@prisma/client';
+import { User, Role } from '../../../generated/prisma-client';
 
 const mockPrismaService = {
   user: {
@@ -24,7 +24,7 @@ describe('AuthRepository', () => {
     cpf: '12345678901',
     telefone: '11999999999',
     avatarUrl: 'https://example.com/avatar.jpg',
-    role: Role.CLIENTE,
+    role: Role.CLIENT,
     active: true,
     lastLogin: new Date(),
     tokenVersion: 1,
@@ -72,7 +72,7 @@ describe('AuthRepository', () => {
         cpf: '12345678901',
         telefone: '11999999999',
         avatarUrl: null,
-        role: Role.CLIENTE,
+        role: Role.CLIENT,
         lastLogin: null,
         tokenVersion: 0,
         refreshToken: null,
@@ -107,7 +107,7 @@ describe('AuthRepository', () => {
         cpf: '12345678901',
         telefone: '11999999999',
         avatarUrl: null,
-        role: Role.CLIENTE,
+        role: Role.CLIENT,
         lastLogin: null,
         tokenVersion: 0,
         refreshToken: null,

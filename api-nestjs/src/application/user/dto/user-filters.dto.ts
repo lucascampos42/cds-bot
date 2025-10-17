@@ -1,6 +1,6 @@
 import { IsOptional, IsEnum, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { Role } from '@prisma/client';
+import { Role } from '../../../generated/prisma-client';
 import { PaginationDto } from '../../../core/dto';
 
 export class UserFiltersDto extends PaginationDto {

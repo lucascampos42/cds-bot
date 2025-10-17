@@ -1,4 +1,4 @@
-import { PrismaClient, Role } from '@prisma/client';
+import { PrismaClient, Role } from '../src/generated/prisma-client';
 import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
@@ -29,6 +29,6 @@ main()
     console.error(e);
     process.exit(1);
   })
-  .finally(async () => {
-    await prisma.$disconnect();
+  .finally(() => {
+    prisma.$disconnect();
   });

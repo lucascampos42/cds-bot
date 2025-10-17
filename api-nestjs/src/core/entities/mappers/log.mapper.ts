@@ -1,4 +1,4 @@
-import { Log as PrismaLog, Prisma } from '@prisma/client';
+import { Log as PrismaLog, Prisma } from '../../../generated/prisma-client';
 import { LogEntity } from '../log.entity';
 
 /**

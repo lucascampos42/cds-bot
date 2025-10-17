@@ -2,7 +2,7 @@ import {
   AuditLog as PrismaAuditLog,
   Prisma,
   AuditAction,
-} from '@prisma/client';
+} from '../../../generated/prisma-client';
 import { AuditLogEntity, CreateAuditLogData } from '../audit-log.entity';
 
 /**

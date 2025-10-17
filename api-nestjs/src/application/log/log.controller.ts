@@ -8,7 +8,7 @@ import {
 import { LogService } from './log.service';
 import { RolesGuard } from '../../core/guards/roles.guard';
 import { Roles } from '../../core/decorators/roles.decorator';
-import { Role } from '@prisma/client';
+import { Role } from '../../generated/prisma-client';
 
 @ApiTags('Logs')
 @ApiBearerAuth('JWT-auth')

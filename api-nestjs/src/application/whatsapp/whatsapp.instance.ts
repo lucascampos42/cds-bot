@@ -60,7 +60,7 @@ export class WhatsAppInstance {
 
         if (connection === 'close') {
           this.connected = false;
-          const statusCode = lastDisconnect?.error?.output?.statusCode;
+          const statusCode = (lastDisconnect?.error as any)?.output?.statusCode;
           const reason =
             statusCode && DisconnectReason[statusCode]
               ? DisconnectReason[statusCode]

@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from './user.service';
 import { PrismaService } from '../../core/config/prisma.service';
 import { CreateUserDto } from '../auth/dto/create-auth.dto';
-import { User, Role } from '@prisma/client';
+import { User, Role } from '../../generated/prisma-client';
 
 const mockUserRepository = {
   create: jest.fn(),
@@ -69,7 +69,7 @@ describe('UserService', () => {
         cpf: null,
         telefone: null,
         avatarUrl: null,
-        role: Role.CLIENTE,
+        role: Role.CLIENT,
         active: false,
         lastLogin: null,
         tokenVersion: 1,
@@ -109,7 +109,7 @@ describe('UserService', () => {
           createdAt: new Date(),
           updatedAt: new Date(),
           deletedAt: null,
-          role: Role.CLIENTE,
+          role: Role.CLIENT,
           lastLogin: null,
           tokenVersion: 1,
           refreshToken: null,
@@ -135,7 +135,7 @@ describe('UserService', () => {
           createdAt: new Date(),
           updatedAt: new Date(),
           deletedAt: null,
-          role: Role.CLIENTE,
+          role: Role.CLIENT,
           lastLogin: null,
           tokenVersion: 1,
           refreshToken: null,
@@ -172,7 +172,7 @@ describe('UserService', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         deletedAt: null,
-        role: Role.CLIENTE,
+        role: Role.CLIENT,
         lastLogin: null,
         tokenVersion: 1,
         refreshToken: null,
@@ -208,7 +208,7 @@ describe('UserService', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         deletedAt: null,
-        role: Role.CLIENTE,
+        role: Role.CLIENT,
         lastLogin: null,
         tokenVersion: 1,
         refreshToken: null,
@@ -247,7 +247,7 @@ describe('UserService', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         deletedAt: null,
-        role: Role.CLIENTE,
+        role: Role.CLIENT,
         lastLogin: null,
         tokenVersion: 1,
         refreshToken: null,

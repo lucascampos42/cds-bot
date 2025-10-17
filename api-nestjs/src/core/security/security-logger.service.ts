@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { User } from '../../generated/prisma-client';
 
 export interface LoginAttemptLog {
   userId?: string;

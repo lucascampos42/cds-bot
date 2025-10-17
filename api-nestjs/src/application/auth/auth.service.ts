@@ -8,7 +8,7 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ActivateAccountDto } from './dto/activate-account.dto';
 import * as crypto from 'crypto';
-import { User, Role } from '@prisma/client';
+import { User, Role } from '../../generated/prisma-client';
 import { MailService } from '../../core/mail/mail.service';
 import { ValidationUtils } from '../../core/utils/validation.utils';
 import {

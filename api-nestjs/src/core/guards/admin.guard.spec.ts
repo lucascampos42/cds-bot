@@ -3,7 +3,7 @@ import { ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { AdminGuard } from './admin.guard';
-import { Role } from '@prisma/client';
+import { Role } from '../../generated/prisma-client';
 
 describe('AdminGuard', () => {
   let guard: AdminGuard;
@@ -77,7 +77,7 @@ describe('AdminGuard', () => {
       mockReflector.getAllAndOverride.mockReturnValue(false); // Não é rota pública
       mockJwtService.verify.mockReturnValue({
         sub: 'user-id',
-        role: Role.CLIENTE,
+        role: Role.CLIENT,
       });
 
       const result = await guard.canActivate(mockContext);

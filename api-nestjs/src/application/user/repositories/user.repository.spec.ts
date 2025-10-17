@@ -3,7 +3,7 @@ import { UserRepository } from './user.repository';
 import { PrismaService } from '../../../core/config/prisma.service';
 import { CreateUserDto } from '../../auth/dto/create-auth.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
-import { User, Role } from '@prisma/client';
+import { User, Role } from '../../../generated/prisma-client';
 
 const mockPrismaService = {
   user: {
@@ -28,7 +28,7 @@ describe('UserRepository', () => {
     cpf: '12345678901',
     telefone: '11999999999',
     avatarUrl: 'https://example.com/avatar.jpg',
-    role: Role.CLIENTE,
+    role: Role.CLIENT,
     active: true,
     lastLogin: new Date(),
     tokenVersion: 1,
@@ -282,7 +282,7 @@ describe('UserRepository', () => {
       const params = {
         page: 1,
         limit: 10,
-        role: Role.CLIENTE,
+        role: Role.CLIENT,
         userName: 'test',
         email: 'test@',
       };
@@ -297,7 +297,7 @@ describe('UserRepository', () => {
 
       expect(mockPrismaService.user.findMany).toHaveBeenCalledWith({
         where: {
-          role: Role.CLIENTE,
+          role: Role.CLIENT,
           userName: { contains: 'test', mode: 'insensitive' },
           email: { contains: 'test@', mode: 'insensitive' },
         },
@@ -308,7 +308,7 @@ describe('UserRepository', () => {
 
       expect(mockPrismaService.user.count).toHaveBeenCalledWith({
         where: {
-          role: Role.CLIENTE,
+          role: Role.CLIENT,
           userName: { contains: 'test', mode: 'insensitive' },
           email: { contains: 'test@', mode: 'insensitive' },
         },

@@ -1,4 +1,4 @@
-import { AuditAction } from '@prisma/client';
+import { AuditAction } from '../../generated/prisma-client';
 
 /**
  * Entidade AuditLog - Representação tipada para audit trail

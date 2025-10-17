@@ -1,13 +1,8 @@
-import {
-  Injectable,
-  CanActivate,
-  ExecutionContext,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { IS_PUBLIC_KEY } from '../decorators/is-public.decorator';
-import { Role } from '@prisma/client';
+import { Role } from '../../generated/prisma-client';
 
 @Injectable()
 export class AdminGuard implements CanActivate {
@@ -16,7 +11,7 @@ export class AdminGuard implements CanActivate {
     private jwtService: JwtService,
   ) {}
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
+  canActivate(context: ExecutionContext): boolean {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),

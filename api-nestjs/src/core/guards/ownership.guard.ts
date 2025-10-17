@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { OWNERSHIP_KEY } from '../decorators/ownership.decorator';
-import { Role } from '@prisma/client';
+import { Role } from '../../generated/prisma-client';
 
 @Injectable()
 export class OwnershipGuard implements CanActivate {

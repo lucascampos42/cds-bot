@@ -1,4 +1,4 @@
-import { User, Role } from '@prisma/client';
+import { User, Role } from '../../../generated/prisma-client';
 import { CreateUserDto } from '../../auth/dto/create-auth.dto';
 
 /**
