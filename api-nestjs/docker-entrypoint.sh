@@ -8,10 +8,10 @@ done
 echo "Database is ready."
 
 echo "Applying database migrations..."
-bunx prisma migrate deploy
+bunx prisma migrate dev --name init
 
 echo "Running database seed script..."
-bun prisma/seed.js
+bunx ts-node prisma/seed.ts
 
 echo "Starting application..."
 exec "$@"

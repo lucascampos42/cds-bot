@@ -1,0 +1,27 @@
+FROM oven/bun:1
+
+WORKDIR /usr/src/app
+
+# Instalar dependências de sistema para o PostgreSQL client e OpenSSL
+RUN apt-get update && apt-get install -y postgresql-client openssl && rm -rf /var/lib/apt/lists/*
+
+# Copiar arquivos de dependência
+COPY package*.json ./
+COPY bun.lock ./
+COPY prisma ./prisma/
+
+# Instalar TODAS as dependências, incluindo devDependencies
+RUN bun install
+
+# Copiar o restante do código (será sobreposto pelo volume, mas é bom ter como cache)
+COPY . .
+
+# Copiar, corrigir permissões e dar permissão de execução para o entrypoint
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN sed -i 's/\r$//g' /usr/local/bin/docker-entrypoint.sh && chmod +x /usr/local/bin/docker-entrypoint.sh
+
+ENV NODE_ENV=development
+EXPOSE 3000
+
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+CMD ["bun", "run", "start:dev"]
