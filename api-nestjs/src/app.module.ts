@@ -72,10 +72,11 @@ import { WhatsAppModule } from './application/whatsapp/whatsapp.module';
   controllers: [],
   providers: [
     PrismaService,
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
+    // Temporariamente desabilitado para resolver problemas de rate limiting
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: ThrottlerGuard,
+    // },
     {
       provide: APP_GUARD,
       useClass: GlobalAuthGuard,

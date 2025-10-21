@@ -1,31 +1,52 @@
-<div class="p-grid p-justify-center p-align-center" style="height: 100%;">
-  <div class="p-col-12 p-md-6 p-lg-4">
-    <div class="card">
-      <div class="p-card-header">
-        <h2 class="p-card-title">WhatsApp Connection</h2>
+<div class="container">
+  <div class="card">
+    <div class="card-header">
+      <h2>Conexão WhatsApp</h2>
+    </div>
+    <div class="card-content">
+      <!-- Estado de Loading -->
+      <div *ngIf="isLoading" class="status-container">
+        <i class="pi pi-spin pi-spinner loading-icon"></i>
+        <p>Inicializando WhatsApp...</p>
       </div>
-      <div class="p-card-content">
-        <div *ngIf="isConnected; else notConnected">
-          <div class="p-d-flex p-flex-column p-align-center">
-            <i class="pi pi-check-circle" style="font-size: 3rem; color: var(--green-500);"></i>
-            <p class="p-mt-2">WhatsApp is connected.</p>
-          </div>
+
+      <!-- Estado de Erro -->
+      <div *ngIf="error && !isLoading" class="status-container error">
+        <i class="pi pi-exclamation-triangle error-icon"></i>
+        <p>{{ error }}</p>
+        <button class="btn btn-primary" (click)="initializeInstance()">
+          Tentar Novamente
+        </button>
+      </div>
+
+      <!-- WhatsApp Conectado -->
+      <div *ngIf="isConnected && !isLoading && !error" class="status-container success">
+        <i class="pi pi-check-circle success-icon"></i>
+        <p>WhatsApp está conectado!</p>
+        <button class="btn btn-secondary" (click)="requestNewQrCode()">
+          Desconectar e Gerar Novo QR
+        </button>
+      </div>
+
+      <!-- QR Code Disponível -->
+      <div *ngIf="!isConnected && qrCodeData && !isLoading && !error" class="status-container">
+        <h3>Escaneie o QR Code</h3>
+        <div class="qr-container">
+          <qrcode [qrdata]="qrCodeData" [width]="256" [errorCorrectionLevel]="'M'"></qrcode>
         </div>
-        <ng-template #notConnected>
-          <div *ngIf="qrCodeData; else noQrCode">
-            <div class="p-d-flex p-flex-column p-align-center">
-              <h3>Scan QR Code</h3>
-              <qrcode [qrdata]="qrCodeData" [width]="256" [errorCorrectionLevel]="'M'"></qrcode>
-              <p class="p-mt-2">Scan this QR code with your phone to connect.</p>
-            </div>
-          </div>
-          <ng-template #noQrCode>
-            <div class="p-d-flex p-flex-column p-align-center">
-              <i class="pi pi-spin pi-spinner" style="font-size: 3rem;"></i>
-              <p class="p-mt-2">Waiting for QR code...</p>
-            </div>
-          </ng-template>
-        </ng-template>
+        <p>Escaneie este QR code com seu telefone para conectar.</p>
+        <button class="btn btn-secondary" (click)="requestNewQrCode()">
+          Gerar Novo QR Code
+        </button>
+      </div>
+
+      <!-- Aguardando QR Code -->
+      <div *ngIf="!isConnected && !qrCodeData && !isLoading && !error" class="status-container">
+        <i class="pi pi-spin pi-spinner loading-icon"></i>
+        <p>Aguardando QR code...</p>
+        <button class="btn btn-primary" (click)="requestNewQrCode()">
+          Solicitar QR Code
+        </button>
       </div>
     </div>
   </div>

@@ -9,12 +9,10 @@ services:
       - "3000:3000"
     env_file:
       - ./api-nestjs/.env.docker
-    environment:
-      - PORT=3000
+    volumes:
+      - ./api-nestjs:/usr/src/app
     depends_on:
       - postgres
-    # O comando foi movido para o docker-entrypoint.sh para garantir que o banco de dados esteja pronto
-
   frontend-angular:
     build:
       context: ./front-angular
