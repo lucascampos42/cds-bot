@@ -69,6 +69,7 @@ export class WhatsAppInstance {
 
           if (statusCode === DisconnectReason.loggedOut) {
             this.logger.warn('Logged out. Please scan the QR code again.');
+            this.cleanup();
             // Should probably destroy the instance here.
           }
         }
@@ -80,6 +81,19 @@ export class WhatsAppInstance {
     }
   }
 
+  private cleanup() {
+    const authDir = path.resolve(process.cwd(), 'baileys_auth', this.instanceId);
+    if (fs.existsSync(authDir)) {
+      this.logger.log('Cleaning up auth directory...');
+      try {
+        fs.rmSync(authDir, { recursive: true, force: true });
+        this.logger.log('Auth directory cleaned up successfully.');
+      } catch (error) {
+        this.logger.error('Error cleaning up auth directory', error as Error);
+      }
+    }
+  }
+
   async close() {
     if (this.sock) {
       await this.sock.logout();
@@ -87,6 +101,7 @@ export class WhatsAppInstance {
     }
     this.connected = false;
     this.qrString = null;
+    this.cleanup();
   }
 
   getStatus() {
