@@ -5,13 +5,13 @@ import { apiReference } from '@scalar/nestjs-api-reference';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
-    cors: true, // Habilitar CORS para WebSocket
+    cors: true,
   });
 
-  // Configuração do Swagger/OpenAPI
   const config = new DocumentBuilder()
     .setTitle('🚀 CDS-BOT - WhatsApp API')
-    .setDescription(`
+    .setDescription(
+      `
     **API robusta para integração com WhatsApp Business**
     
     Esta API permite que você:
@@ -57,7 +57,6 @@ async function bootstrap() {
 
   SwaggerModule.setup('api', app, document);
 
-  // Configuração do Scalar com tema personalizado
   app.use(
     '/docs',
     apiReference({

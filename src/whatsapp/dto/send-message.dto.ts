@@ -20,9 +20,10 @@ export class SendMessageDto {
   @IsString()
   @IsNotEmpty()
   @Matches(/^[1-9][0-9]{7,14}$/, {
-    message: 'Número deve estar no formato internacional sem símbolos (ex: 5511999887766)',
+    message:
+      'Número deve estar no formato internacional sem símbolos (ex: 5511999887766)',
   })
-  number: string;
+  to: string;
 
   @ApiProperty({
     description: 'Conteúdo da mensagem de texto a ser enviada',

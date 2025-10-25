@@ -4,238 +4,124 @@ import {
   SubscribeMessage,
   MessageBody,
   ConnectedSocket,
+  OnGatewayInit,
   OnGatewayConnection,
   OnGatewayDisconnect,
-  OnGatewayInit,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { Logger } from '@nestjs/common';
 import { WhatsappService } from './whatsapp.service';
 import { JoinSessionDto, WebSocketSendMessageDto } from './dto/websocket.dto';
 
 @WebSocketGateway({
-  cors: { origin: '*' },
   namespace: '/whatsapp',
+  cors: { origin: '*' },
 })
-export class WhatsappGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+export class WhatsappGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   server: Server;
 
-  private readonly logger = new Logger(WhatsappGateway.name);
-  private sessionClients = new Map<string, Set<string>>();
+  private sessionClients: Map<string, string> = new Map();
 
   constructor(private readonly whatsappService: WhatsappService) {}
 
-  afterInit(server: Server) {
-    this.logger.log('WebSocket Gateway inicializado');
-    
-    this.whatsappService.getQRCodeStream().subscribe(({ sessionId, qr }) => {
-      this.server.to(`session-${sessionId}`).emit('qr-code', { sessionId, qr });
+  afterInit(): void {
+    this.whatsappService.qrCodeSubject.subscribe(({ sessionId, qr }) => {
+      this.emitQRCode(sessionId, qr);
     });
 
-    this.whatsappService.getConnectionStatusStream().subscribe(({ sessionId, status }) => {
-      this.server.to(`session-${sessionId}`).emit('status-change', { sessionId, status });
-    });
+    this.whatsappService.connectionStatusSubject.subscribe(
+      ({ sessionId, status }) => {
+        this.emitStatusChange(sessionId, status);
+      },
+    );
   }
 
-  handleConnection(client: Socket) {
-    this.logger.log(`Cliente conectado: ${client.id}`);
+  handleConnection(client: Socket): void {
     client.emit('connected', {
-      message: 'Conectado ao WebSocket do WhatsApp',
-      clientId: client.id,
+      message: 'Conectado ao gateway WhatsApp',
       timestamp: new Date().toISOString(),
     });
   }
 
-  handleDisconnect(client: Socket) {
-    this.logger.log(`Cliente desconectado: ${client.id}`);
-    
-    for (const [sessionId, clients] of this.sessionClients.entries()) {
-      if (clients.has(client.id)) {
-        clients.delete(client.id);
-        if (clients.size === 0) {
-          this.sessionClients.delete(sessionId);
-        }
-        this.logger.log(`Cliente ${client.id} removido da sessão ${sessionId}`);
-      }
+  handleDisconnect(client: Socket): void {
+    const sessionId = this.sessionClients.get(client.id);
+    if (sessionId) {
+      void client.leave(`session-${sessionId}`);
+      this.sessionClients.delete(client.id);
     }
   }
 
   @SubscribeMessage('join-session')
-  async handleJoinSession(
+  handleJoinSession(
     @MessageBody() data: JoinSessionDto,
     @ConnectedSocket() client: Socket,
-  ) {
-    try {
-      const { sessionId } = data;
-      
-      if (!sessionId) {
-        client.emit('error', {
-          message: 'sessionId é obrigatório',
-          timestamp: new Date().toISOString(),
-        });
-        return;
-      }
-
-      if (!this.sessionClients.has(sessionId)) {
-        this.sessionClients.set(sessionId, new Set());
-      }
-      
-      const sessionSet = this.sessionClients.get(sessionId);
-      if (sessionSet) {
-        sessionSet.add(client.id);
-      }
-      
-      await client.join(`session-${sessionId}`);
-      
-      const sessionsResult = await this.whatsappService.getSessions();
-      const existingSession = sessionsResult.data.sessions.find(s => s.sessionId === sessionId);
-      
-      if (!existingSession) {
-        await this.whatsappService.createSession(sessionId);
-      }
-      
-      this.logger.log(`Cliente ${client.id} entrou na sessão ${sessionId}`);
-      
-      client.emit('joined-session', {
-        sessionId,
-        message: `Conectado à sessão ${sessionId}`,
-        timestamp: new Date().toISOString(),
-      });
-      
-    } catch (error) {
-      client.emit('error', {
-        message: error.message || 'Erro ao entrar na sessão',
-        timestamp: new Date().toISOString(),
-      });
+  ): void {
+    const { sessionId } = data;
+    
+    if (!this.whatsappService.getSessions().data.sessions.find(s => s.sessionId === sessionId)) {
+      void this.whatsappService.createSession(sessionId);
     }
+    
+    void client.join(`session-${sessionId}`);
+    this.sessionClients.set(client.id, sessionId);
+    
+    client.emit('joined-session', { sessionId });
   }
 
   @SubscribeMessage('leave-session')
-  handleLeaveSession(
-    @MessageBody() data: JoinSessionDto,
-    @ConnectedSocket() client: Socket,
-  ) {
-    const { sessionId } = data;
-    
-    if (this.sessionClients.has(sessionId)) {
-      const sessionSet = this.sessionClients.get(sessionId);
-      if (sessionSet) {
-        sessionSet.delete(client.id);
-        if (sessionSet.size === 0) {
-          this.sessionClients.delete(sessionId);
-        }
-      }
+  handleLeaveSession(@ConnectedSocket() client: Socket): void {
+    const sessionId = this.sessionClients.get(client.id);
+    if (sessionId) {
+      void client.leave(`session-${sessionId}`);
+      this.sessionClients.delete(client.id);
+      client.emit('left-session', { sessionId });
     }
-
-    client.leave(`session-${sessionId}`);
-    this.logger.log(`Cliente ${client.id} saiu da sessão ${sessionId}`);
-    
-    client.emit('left-session', {
-      sessionId,
-      message: `Desconectado da sessão ${sessionId}`,
-      timestamp: new Date().toISOString(),
-    });
   }
 
   @SubscribeMessage('send-message')
-  async handleSendMessage(
+  handleSendMessage(
     @MessageBody() data: WebSocketSendMessageDto,
-    @ConnectedSocket() client: Socket,
-  ) {
-    try {
-      const { sessionId, number, message } = data;
-      
-      const result = await this.whatsappService.sendMessage(sessionId, number, message);
-      
-      client.emit('message-sent', {
-        sessionId,
-        number,
-        message,
-        messageId: result.messageId,
-        timestamp: result.timestamp,
-      });
-      
-      client.to(`session-${sessionId}`).emit('message-sent-notification', {
-        sessionId,
-        number,
-        timestamp: result.timestamp,
-      });
-      
-    } catch (error) {
-      client.emit('error', {
-        message: error.message,
-        type: 'send-message-error',
-        timestamp: new Date().toISOString(),
-      });
-    }
+  ): void {
+    void this.whatsappService.sendMessage(data.sessionId, data.to, data.message);
   }
 
   @SubscribeMessage('get-sessions')
-  async handleGetSessions(@ConnectedSocket() client: Socket) {
-    try {
-      const result = await this.whatsappService.getSessions();
-      
-      client.emit('sessions-list', {
-        sessions: result.data.sessions,
-        total: result.data.total,
-        timestamp: new Date().toISOString(),
-      });
-    } catch (error) {
-      client.emit('error', {
-        message: error.message,
-        type: 'get-sessions-error',
-        timestamp: new Date().toISOString(),
-      });
-    }
+  handleGetSessions(@ConnectedSocket() client: Socket): void {
+    const sessions = this.whatsappService.getSessions();
+    client.emit('sessions-list', sessions);
   }
 
-  emitQRCode(sessionId: string, qr: string) {
-    this.server.to(`session-${sessionId}`).emit('qr-code', {
-      sessionId,
-      qr,
+  private emitQRCode(sessionId: string, qr: string): void {
+    this.server.to(`session-${sessionId}`).emit('qr-code', { qr });
+  }
+
+  private emitStatusChange(sessionId: string, status: string): void {
+    this.server.to(`session-${sessionId}`).emit('status-change', { status });
+  }
+
+  private emitMessageReceived(sessionId: string, message: unknown): void {
+    this.server.to(`session-${sessionId}`).emit('message-received', message);
+  }
+
+  private emitError(sessionId: string, error: string): void {
+    this.server.to(`session-${sessionId}`).emit('error', { 
+      message: error,
       timestamp: new Date().toISOString(),
     });
   }
 
-  emitStatusChange(sessionId: string, status: string) {
-    this.server.to(`session-${sessionId}`).emit('status-change', {
-      sessionId,
-      status,
-      timestamp: new Date().toISOString(),
-    });
-  }
-
-  emitMessageReceived(sessionId: string, from: string, message: string, messageId: string) {
-    this.server.to(`session-${sessionId}`).emit('message-received', {
-      sessionId,
-      from,
-      message,
-      messageId,
-      timestamp: new Date().toISOString(),
-    });
-  }
-
-  emitError(sessionId: string, error: string) {
-    this.server.to(`session-${sessionId}`).emit('session-error', {
-      sessionId,
-      error,
-      timestamp: new Date().toISOString(),
-    });
-  }
-
-  getConnectionStats() {
+  getConnectionStats(): { totalConnections: number; sessionConnections: Record<string, number> } {
     const stats = {
-      totalSessions: this.sessionClients.size,
-      totalClients: Array.from(this.sessionClients.values()).reduce(
-        (total, clients) => total + clients.size,
-        0,
-      ),
-      sessions: Array.from(this.sessionClients.entries()).map(([sessionId, clients]) => ({
-        sessionId,
-        clientCount: clients.size,
-      })),
+      totalConnections: this.sessionClients.size,
+      sessionConnections: {} as Record<string, number>,
     };
+
+    for (const sessionId of this.sessionClients.values()) {
+      stats.sessionConnections[sessionId] = (stats.sessionConnections[sessionId] || 0) + 1;
+    }
+
     return stats;
   }
 }

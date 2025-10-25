@@ -12,7 +12,8 @@ export class CreateSessionDto {
   @IsString()
   @IsNotEmpty()
   @Matches(/^[a-zA-Z0-9-_]+$/, {
-    message: 'sessionId deve conter apenas letras, números, hífens e underscores',
+    message:
+      'sessionId deve conter apenas letras, números, hífens e underscores',
   })
   sessionId: string;
 }

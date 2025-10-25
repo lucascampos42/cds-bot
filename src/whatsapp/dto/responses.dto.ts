@@ -3,7 +3,8 @@ import { ApiProperty } from '@nestjs/swagger';
 export class SessionCreatedResponseDto {
   @ApiProperty({
     description: 'Mensagem de confirmação da criação da sessão',
-    example: 'A sessão está sendo iniciada. Conecte-se ao stream para obter o QR code.',
+    example:
+      'A sessão está sendo iniciada. Conecte-se ao stream para obter o QR code.',
   })
   message: string;
 }

@@ -39,18 +39,20 @@ export class WhatsappController {
   @Post('sessions')
   @ApiOperation({
     summary: 'Cria uma nova sessão do WhatsApp',
-    description: 'Inicia uma nova sessão do WhatsApp para autenticação e envio de mensagens.',
+    description:
+      'Inicia uma nova sessão do WhatsApp para autenticação e envio de mensagens.',
   })
   @ApiBody({ type: CreateSessionDto })
   @ApiResponse({ status: 201, type: SessionCreatedResponseDto })
   @ApiResponse({ status: 400, type: ErrorResponseDto })
   @ApiResponse({ status: 409, type: ErrorResponseDto })
-  async createSession(
+  createSession(
     @Body() createSessionDto: CreateSessionDto,
-  ): Promise<SessionCreatedResponseDto> {
+  ): SessionCreatedResponseDto {
     void this.whatsappService.createSession(createSessionDto.sessionId);
     return {
-      message: 'A sessão está sendo iniciada. Conecte-se ao stream para obter o QR code.',
+      message:
+        'A sessão está sendo iniciada. Conecte-se ao stream para obter o QR code.',
     };
   }
 
@@ -67,20 +69,37 @@ export class WhatsappController {
   @Sse('sessions/:sessionId/stream')
   @ApiOperation({
     summary: 'Stream de eventos para QR code e status da conexão',
-    description: 'Estabelece uma conexão Server-Sent Events (SSE) para receber eventos em tempo real.',
+    description:
+      'Estabelece um stream de eventos para receber QR codes e atualizações de status.',
   })
-  @ApiParam({ name: 'sessionId', description: 'Identificador único da sessão WhatsApp' })
+  @ApiParam({
+    name: 'sessionId',
+    description: 'ID da sessão WhatsApp',
+    example: 'session-123',
+  })
   @ApiResponse({ status: 200, description: 'Stream de eventos estabelecido' })
   @ApiResponse({ status: 404, type: ErrorResponseDto })
   stream(@Param('sessionId') sessionId: string): Observable<MessageEvent> {
     const qrStream = this.whatsappService.getQRCodeStream().pipe(
       filter((event) => event.sessionId === sessionId),
-      map((event) => new MessageEvent('qr', { data: event.qr })),
+      map(
+        (event) =>
+          ({
+            type: 'qr-code',
+            data: JSON.stringify({ qrCode: event.qr }),
+          }) as MessageEvent,
+      ),
     );
 
     const statusStream = this.whatsappService.getConnectionStatusStream().pipe(
       filter((event) => event.sessionId === sessionId),
-      map((event) => new MessageEvent('status', { data: event.status })),
+      map(
+        (event) =>
+          ({
+            type: 'status',
+            data: JSON.stringify({ status: event.status }),
+          }) as MessageEvent,
+      ),
     );
 
     return new Observable((subscriber) => {
@@ -97,7 +116,8 @@ export class WhatsappController {
   @Post('send')
   @ApiOperation({
     summary: 'Envia uma mensagem de texto',
-    description: 'Envia uma mensagem de texto para um número WhatsApp específico.',
+    description:
+      'Envia uma mensagem de texto para um número específico através de uma sessão ativa.',
   })
   @ApiBody({ type: SendMessageDto })
   @ApiResponse({ status: 200, type: MessageSentResponseDto })
@@ -107,11 +127,16 @@ export class WhatsappController {
   async sendMessage(
     @Body() sendMessageDto: SendMessageDto,
   ): Promise<MessageSentResponseDto> {
-    return this.whatsappService.sendMessage(
+    const result = await this.whatsappService.sendMessage(
       sendMessageDto.sessionId,
-      sendMessageDto.number,
+      sendMessageDto.to,
       sendMessageDto.message,
     );
+    return {
+      message: result.message,
+      messageId: result.messageId,
+      timestamp: new Date().toISOString(),
+    };
   }
 
   @Get('websocket-info')
@@ -136,12 +161,24 @@ export class WhatsappController {
                 client_to_server: {
                   type: 'array',
                   items: { type: 'string' },
-                  example: ['join-session', 'leave-session', 'send-message', 'get-sessions'],
+                  example: [
+                    'join-session',
+                    'leave-session',
+                    'send-message',
+                    'get-sessions',
+                  ],
                 },
                 server_to_client: {
                   type: 'array',
                   items: { type: 'string' },
-                  example: ['connected', 'qr-code', 'status-change', 'message-received', 'message-sent', 'error'],
+                  example: [
+                    'connected',
+                    'qr-code',
+                    'status-change',
+                    'message-received',
+                    'message-sent',
+                    'error',
+                  ],
                 },
               },
             },
@@ -167,8 +204,20 @@ export class WhatsappController {
         url: 'ws://localhost:3099/whatsapp',
         namespace: '/whatsapp',
         events: {
-          client_to_server: ['join-session', 'leave-session', 'send-message', 'get-sessions'],
-          server_to_client: ['connected', 'qr-code', 'status-change', 'message-received', 'message-sent', 'error'],
+          client_to_server: [
+            'join-session',
+            'leave-session',
+            'send-message',
+            'get-sessions',
+          ],
+          server_to_client: [
+            'connected',
+            'qr-code',
+            'status-change',
+            'message-received',
+            'message-sent',
+            'error',
+          ],
         },
       },
       advantages: [

@@ -2,53 +2,53 @@ import { Injectable } from '@nestjs/common';
 import makeWASocket, {
   DisconnectReason,
   useMultiFileAuthState,
+  WASocket,
+  proto,
 } from '@whiskeysockets/baileys';
 import { Subject } from 'rxjs';
 import * as qrcode from 'qrcode-terminal';
 
 @Injectable()
 export class WhatsappService {
-  private sessions: Map<string, any> = new Map();
+  private sessions: Map<string, WASocket> = new Map();
   public qrCodeSubject = new Subject<{ sessionId: string; qr: string }>();
   public connectionStatusSubject = new Subject<{
     sessionId: string;
     status: string;
   }>();
 
-  async createSession(sessionId: string): Promise<any> {
+  async createSession(sessionId: string): Promise<WASocket> {
     const { state, saveCreds } = await useMultiFileAuthState(
-      `sessions/${sessionId}`,
+      `./sessions/${sessionId}`,
     );
+
     const sock = makeWASocket({
       auth: state,
+      printQRInTerminal: false,
     });
+
+    sock.ev.on('creds.update', saveCreds);
 
     sock.ev.on('connection.update', (update) => {
       const { connection, lastDisconnect, qr } = update;
 
       if (qr) {
-        qrcode.generate(qr, { small: true });
-        this.qrCodeSubject.next({ sessionId, qr });
+        setTimeout(() => {
+          qrcode.generate(qr, { small: true }, (qrOutput: string) => {
+            this.qrCodeSubject.next({ sessionId, qr: qrOutput });
+          });
+        }, 0);
       }
 
       if (connection === 'close') {
         const shouldReconnect =
-          lastDisconnect?.error &&
-          (lastDisconnect.error as any)?.output?.statusCode !==
-            DisconnectReason.loggedOut;
-        this.connectionStatusSubject.next({
-          sessionId,
-          status: 'disconnected',
-        });
+          (lastDisconnect?.error as { output?: { statusCode: number } })?.output
+            ?.statusCode !== DisconnectReason.loggedOut;
         if (shouldReconnect) {
           void this.createSession(sessionId);
         }
-      } else if (connection === 'open') {
-        this.connectionStatusSubject.next({ sessionId, status: 'connected' });
       }
     });
-
-    sock.ev.on('creds.update', saveCreds);
 
     this.sessions.set(sessionId, sock);
     return sock;
@@ -63,18 +63,16 @@ export class WhatsappService {
   }
 
   getSessions() {
-    const sessions = Array.from(this.sessions.keys()).map((sessionId) => ({
-      sessionId,
-      status: this.sessions.get(sessionId) ? 'connected' : 'disconnected',
-      lastActivity: new Date().toISOString(),
-    }));
-
     return {
       success: true,
       message: 'Sessões listadas com sucesso',
       data: {
-        sessions,
-        total: sessions.length,
+        sessions: Array.from(this.sessions.keys()).map((sessionId) => ({
+          sessionId,
+          status: 'connected',
+          lastActivity: new Date().toISOString(),
+        })),
+        total: this.sessions.size,
       },
     };
   }
@@ -91,21 +89,23 @@ export class WhatsappService {
         ? number
         : `${number}@s.whatsapp.net`;
 
-      const messageInfo = await session.sendMessage(formattedNumber, {
-        text: message,
-      });
+      const messageInfo = await session.sendMessage(
+        formattedNumber,
+        { text: message },
+      );
 
       return {
         success: true,
         message: 'Mensagem enviada com sucesso',
-        messageId: messageInfo.key.id,
+        messageId: messageInfo?.key?.id || 'unknown',
         timestamp: new Date().toISOString(),
         to: number,
         sessionId,
       };
     } catch (error) {
-      console.error('Erro ao enviar mensagem:', error);
-      throw new Error(`Falha ao enviar mensagem: ${error.message}`);
+      const errorMessage =
+        error instanceof Error ? error.message : 'Erro desconhecido';
+      throw new Error(`Falha ao enviar mensagem: ${errorMessage}`);
     }
   }
 }

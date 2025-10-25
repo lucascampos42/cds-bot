@@ -26,7 +26,7 @@ export class WebSocketSendMessageDto {
   })
   @IsString()
   @IsNotEmpty()
-  number: string;
+  to: string;
 
   @ApiProperty({
     description: 'Mensagem a ser enviada',
@@ -41,7 +41,14 @@ export class WebSocketEventDto {
   @ApiProperty({
     description: 'Tipo do evento',
     example: 'qr-code',
-    enum: ['connected', 'qr-code', 'status-change', 'message-received', 'message-sent', 'error'],
+    enum: [
+      'connected',
+      'qr-code',
+      'status-change',
+      'message-received',
+      'message-sent',
+      'error',
+    ],
   })
   event: string;
 
