@@ -156,9 +156,10 @@ GET  /metrics - Métricas de uso (opcional)
 PORT=3000
 NODE_ENV=production
 
-# JWT (para autenticação da API)
-JWT_SECRET="your-super-secret-key"
-JWT_ACCESS_TTL="24h"
+# API Keys (autenticação entre sistemas)
+API_KEYS="key1,key2,key3"
+# ou via arquivo
+API_KEYS_FILE="./config/api-keys.txt"
 
 # WhatsApp
 WHATSAPP_SESSION_PATH="./baileys_auth"
@@ -174,11 +175,11 @@ DATABASE_URL="postgresql://user:password@localhost:5432/whatsapp-service"
 
 ## 🛡️ Segurança
 
-- **Rate Limiting**: Proteção contra spam e abuso
-- **JWT Authentication**: Acesso seguro à API
+- **API Key Authentication**: Autenticação via chaves de API para sistemas
+- **Rate Limiting**: Proteção contra spam e abuso por API Key
 - **CORS**: Configuração de origens permitidas
 - **Validação**: Sanitização automática de entrada
-- **Logs**: Rastreamento de todas as operações
+- **Logs**: Rastreamento de todas as operações por sistema
 
 ## 📊 Monitoramento
 
