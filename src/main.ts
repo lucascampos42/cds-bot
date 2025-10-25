@@ -60,67 +60,11 @@ async function bootstrap() {
     '/docs',
     apiReference({
       theme: 'kepler',
-      layout: 'modern',
       metaData: {
-        title: '🚀 CDS-BOT - Documentação da API WhatsApp',
-        description:
-          'Documentação interativa da API para integração com WhatsApp Business',
-        ogDescription:
-          'API robusta para envio de mensagens WhatsApp com autenticação QR code',
-        ogTitle: 'CDS-BOT WhatsApp API',
-        twitterCard: 'summary_large_image',
+        title: 'CDS-BOT - API WhatsApp',
+        description: 'Documentação da API para integração com WhatsApp',
       },
-      customCss: `
-        .scalar-app {
-          --scalar-color-1: #121212;
-          --scalar-color-2: #1e1e1e;
-          --scalar-color-3: #2d2d2d;
-          --scalar-color-accent: #00d4aa;
-          --scalar-color-green: #00d4aa;
-          --scalar-color-blue: #0ea5e9;
-          --scalar-color-purple: #8b5cf6;
-          --scalar-color-orange: #f59e0b;
-          --scalar-color-red: #ef4444;
-          --scalar-border-radius: 8px;
-          --scalar-font-size: 14px;
-        }
-        
-        .scalar-api-reference__header {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
-        }
-        
-        .scalar-api-reference__sidebar {
-          border-right: 1px solid var(--scalar-color-3);
-        }
-        
-        .scalar-button {
-          border-radius: var(--scalar-border-radius);
-          transition: all 0.2s ease;
-        }
-        
-        .scalar-button:hover {
-          transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-      `,
-      searchHotKey: 'k',
-      showSidebar: true,
-      hideModels: false,
-      hideDownloadButton: false,
       darkMode: true,
-      forceDarkModeState: 'dark',
-      hideTestRequestButton: false,
-      servers: [
-        {
-          url: 'http://localhost:3099',
-          description: '🔧 Desenvolvimento Local',
-        },
-        {
-          url: 'https://api.seudominio.com',
-          description: '🚀 Produção',
-        },
-      ],
     }),
   );
 
