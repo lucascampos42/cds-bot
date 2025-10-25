@@ -1,25 +1,26 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
-export interface WhatsAppStatus {
-  instanceId: string;
-  connected: boolean;
-  hasQr: boolean;
-  isInitializing: boolean;
+export interface WhatsAppSession {
+  sessionId: string;
+  status: 'connected' | 'disconnected';
+  lastActivity: string;
 }
 
-export interface WhatsAppQR {
-  qr: string | null;
-}
-
-interface ApiResponse<T> {
-  statusCode: number;
+export interface SendMessageRequest {
+  sessionId: string;
+  number: string;
   message: string;
-  data: T;
+}
+
+export interface SendMessageResponse {
+  success: boolean;
+  messageId: string;
   timestamp: string;
+  to: string;
+  sessionId: string;
 }
 
 @Injectable({
@@ -27,27 +28,18 @@ interface ApiResponse<T> {
 })
 export class WhatsappService {
   private apiUrl = `${environment.apiUrl}/whatsapp`;
-  private instanceId = 'default';
 
   constructor(private http: HttpClient) { }
 
-  createInstance(): Observable<WhatsAppStatus> {
-    return this.http.post<ApiResponse<WhatsAppStatus>>(`${this.apiUrl}/instances/${this.instanceId}`, {})
-      .pipe(map(response => response.data));
+  createSession(sessionId: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/sessions`, { sessionId });
   }
 
-  getStatus(): Observable<WhatsAppStatus> {
-    return this.http.get<ApiResponse<WhatsAppStatus>>(`${this.apiUrl}/instances/${this.instanceId}/status`)
-      .pipe(map(response => response.data));
+  getSessions(): Observable<WhatsAppSession[]> {
+    return this.http.get<WhatsAppSession[]>(`${this.apiUrl}/sessions`);
   }
 
-  getQrCode(): Observable<WhatsAppQR> {
-    return this.http.get<ApiResponse<WhatsAppQR>>(`${this.apiUrl}/instances/${this.instanceId}/qr`)
-      .pipe(map(response => response.data));
-  }
-
-  reconnect(): Observable<any> {
-    return this.http.get<ApiResponse<any>>(`${this.apiUrl}/instances/${this.instanceId}/reconnect`)
-      .pipe(map(response => response.data));
+  sendMessage(request: SendMessageRequest): Observable<SendMessageResponse> {
+    return this.http.post<SendMessageResponse>(`${this.apiUrl}/send`, request);
   }
 }
