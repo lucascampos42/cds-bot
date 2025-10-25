@@ -29,6 +29,7 @@ export class WhatsappService {
 
       if (connection === 'close') {
         const shouldReconnect =
+          lastDisconnect?.error &&
           (lastDisconnect.error as any)?.output?.statusCode !==
           DisconnectReason.loggedOut;
         this.connectionStatusSubject.next({ sessionId, status: 'disconnected' });

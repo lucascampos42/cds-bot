@@ -1,0 +1,11 @@
+{
+  "version": "1",
+  "name": "WhatsApp Bot API",
+  "type": "collection",
+  "environments": {
+    "Local": {
+      "host": "http://localhost:3099",
+      "sessionId": "meu-bot"
+    }
+  }
+}

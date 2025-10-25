@@ -1,0 +1,34 @@
+meta {
+  name: Stream de Eventos
+  type: sse
+  seq: 4
+}
+
+get {
+  url: {{host}}/whatsapp/sessions/{{sessionId}}/stream
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: text/event-stream
+  Cache-Control: no-cache
+}
+
+vars:pre-request {
+  host: http://localhost:3099
+  sessionId: meu-bot
+}
+
+docs {
+  Este é um endpoint de Server-Sent Events (SSE) para receber eventos em tempo real.
+
+  Eventos disponíveis:
+  - 'qr': Contém o código QR para autenticação
+  - 'status': Status da conexão (connecting, connected, disconnected)
+
+  Para testar via curl:
+  `curl -N -H "Accept: text/event-stream" {{host}}/whatsapp/sessions/{{sessionId}}/stream`
+
+  Você receberá eventos de 'qr' e 'status' em tempo real.
+}
