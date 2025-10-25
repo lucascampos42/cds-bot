@@ -1,3 +1,4 @@
 .env
-back-nestjs/node_modules/
-back-nestjs/dist/
+node_modules/
+dist/
+

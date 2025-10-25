@@ -1,0 +1,25 @@
+meta {
+  name: Criar Sessão
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/whatsapp/sessions
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "sessionId": "meu-bot"
+  }
+}
+
+vars:pre-request {
+  host: http://localhost:3099
+}

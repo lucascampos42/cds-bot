@@ -1,0 +1,27 @@
+meta {
+  name: Enviar Mensagem
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{host}}/whatsapp/send
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "sessionId": "meu-bot",
+    "number": "5511999999999",
+    "message": "Olá, mundo!"
+  }
+}
+
+vars:pre-request {
+  host: http://localhost:3099
+}
