@@ -1,0 +1,25 @@
+meta {
+  name: Stream de Eventos
+  type: sse
+  seq: 4
+}
+
+get {
+  url: {{host}}/whatsapp/sessions/meu-bot/stream
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  host: http://localhost:3099
+}
+
+docs {
+  Este é um endpoint de Server-Sent Events (SSE).
+
+  Para testar, você pode usar uma ferramenta como o `curl` ou um cliente SSE:
+
+  `curl -N http://localhost:3099/whatsapp/sessions/meu-bot/stream`
+
+  Você receberá eventos de 'qr' e 'status' em tempo real.
+}

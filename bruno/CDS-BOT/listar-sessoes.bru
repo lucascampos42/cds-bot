@@ -1,0 +1,15 @@
+meta {
+  name: Listar Sessões
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{host}}/whatsapp/sessions
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  host: http://localhost:3099
+}

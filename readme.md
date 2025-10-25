@@ -1,228 +1,70 @@
-# 📱 WhatsApp Microservice
+# 📱 CDS-BOT - API do WhatsApp
 
-**WhatsApp Microservice** é um serviço especializado para envio de mensagens via WhatsApp, projetado para ser integrado por outros sistemas que precisam enviar avisos, notificações e campanhas promocionais.
+O **CDS-BOT** é uma API de serviço para enviar mensagens via WhatsApp, projetada para ser integrada a outros sistemas que precisam enviar avisos, notificações e campanhas promocionais.
 
-## 💡 Sobre o Projeto
+## ✨ Sobre o Projeto
 
-Este microserviço foi desenvolvido para fornecer uma API simples e robusta para envio de mensagens WhatsApp, oferecendo:
+Este serviço fornece uma API simples e robusta para enviar mensagens do WhatsApp, oferecendo:
 
-- **API RESTful**: Endpoints simples para integração com qualquer sistema
-- **Envio de Avisos**: Notificações automáticas para usuários
-- **Campanhas Promocionais**: Envio de propagandas e ofertas
-- **Multi-instância**: Suporte a múltiplas contas WhatsApp
-- **Confiabilidade**: Reconexão automática e controle de status
-
-## 🏗️ Arquitetura
-
-Microserviço containerizado com arquitetura simples e eficiente:
-
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│  Sistemas       │    │   WhatsApp      │    │   WhatsApp      │
-│  Externos       │◄──►│   Microservice  │◄──►│   API           │
-│  (Clientes)     │    │   NestJS        │    │   (Baileys)     │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-                                │
-                    ┌─────────────────┐
-                    │   PostgreSQL    │
-                    │   (Opcional)    │
-                    └─────────────────┘
-```
+- **API RESTful**: Endpoints simples para integração com qualquer sistema.
+- **Conexão em Tempo Real**: Autenticação via QR code em tempo real.
+- **Reconexão Automática**: Mantém a sessão ativa e reconecta automaticamente.
 
 ## 🚀 Tecnologias
 
-### Core do Microserviço
 - **Framework**: NestJS 11 com TypeScript
-- **WhatsApp API**: Baileys (Multi-device API)
-- **Documentação**: OpenAPI/Swagger
-- **Segurança**: JWT, Rate Limiting, CORS
-- **Logs**: Sistema de logs estruturados
-- **Testes**: Jest (unitários e e2e)
-
-### Infraestrutura
-- **Containerização**: Docker + Docker Compose
-- **Banco de Dados**: PostgreSQL (opcional para logs/histórico)
-- **Deploy**: Suporte a containers e cloud
-
-## ✨ Funcionalidades
-
-### 📱 Envio de Mensagens
-- **Envio de Texto**: Mensagens simples via API REST
-- **Avisos Automáticos**: Notificações para usuários específicos
-- **Campanhas Promocionais**: Envio em massa de ofertas e propagandas
-- **Validação de Números**: Verificação automática de números válidos
-- **Status de Entrega**: Confirmação de envio e entrega
-
-### 🔧 Gestão de Instâncias
-- **Multi-instância**: Múltiplas contas WhatsApp simultâneas
-- **QR Code**: Autenticação via endpoint dedicado
-- **Reconexão Automática**: Recuperação de falhas de conexão
-- **Status em Tempo Real**: Monitoramento de conexões ativas
-- **Isolamento**: Cada instância opera independentemente
-
-### 🔐 Segurança e Controle
-- **API Key Authentication**: Autenticação entre sistemas via chaves de API
-- **Rate Limiting**: Proteção contra spam e abuso
-- **Logs Detalhados**: Rastreamento de todas as operações
-- **Validação de Entrada**: Sanitização automática de dados
-
-### 🚀 Integração
-- **API RESTful**: Endpoints simples e documentados
-- **Autenticação API-to-API**: Chaves de API para sistemas autorizados
-- **Webhooks**: Notificações de status para sistemas externos
-- **Formato JSON**: Comunicação padronizada
-- **SDKs**: Bibliotecas para linguagens populares (em desenvolvimento)
+- **WhatsApp API**: Baileys (API Multi-dispositivo)
+- **Documentação da API**: OpenAPI (compatível com Scalar, Bruno e Swagger UI)
 
 ## 🚀 Como Executar
 
 ### Pré-requisitos
-- Docker e Docker Compose
-- Node.js 20+ (para desenvolvimento local)
+- Node.js 20+
+- Um cliente de API como o [Bruno](https://www.usebruno.com/) ou `curl`.
 
-### Execução com Docker (Recomendado)
+### Executando o Serviço
 
 1. **Clone o repositório**:
    ```bash
    git clone <url-do-repositorio>
-   cd whatsapp-microservice
+   cd cds-bot
    ```
 
-2. **Configure as variáveis de ambiente**:
+2. **Instale as dependências e inicie**:
    ```bash
-   cp back-nestjs/.env.example back-nestjs/.env
-   # Edite as variáveis conforme necessário
+   cd back-nestjs
+   npm install
+   npm run start:dev
    ```
 
-3. **Execute o microserviço**:
-   ```bash
-   docker-compose up -d
-   ```
+3. **Acompanhe a saída do console**:
+   O servidor será iniciado na porta 3099. Os links para a documentação da API serão exibidos no console.
 
-4. **Acesse o serviço**:
-   - **API**: http://localhost:3000
-   - **Documentação**: http://localhost:3000/docs
-
-### Desenvolvimento Local
-
-```bash
-cd back-nestjs
-npm install
-cp .env.example .env
-# Configure as variáveis no .env
-npm run start:dev
-```
-
-### Exemplo de Uso da API
-
-```bash
-# Enviar mensagem
-curl -X POST http://localhost:3000/whatsapp/send \
-  -H "Content-Type: application/json" \
-  -H "X-API-Key: YOUR_API_KEY" \
-  -d '{
-    "instance": "default",
-    "number": "5511999999999",
-    "message": "Olá! Esta é uma mensagem de teste."
-  }'
-```
-
-## 📚 Documentação da API
-
-### Endpoints Principais
-
-#### WhatsApp
-```
-GET  /whatsapp/instances - Listar instâncias ativas
-POST /whatsapp/qr/:instance - Obter QR Code para autenticação
-POST /whatsapp/send - Enviar mensagem
-GET  /whatsapp/status/:instance - Status da instância
-```
-
-#### Monitoramento
-```
-GET  /health - Status do serviço
-GET  /metrics - Métricas de uso (opcional)
-```
+## 📚 Documentação e Testes da API
 
 ### Documentação Interativa
-- **Swagger UI**: http://localhost:3000/docs
-- **OpenAPI JSON**: http://localhost:3000/docs-json
+- **Scalar**: [http://localhost:3099/docs](http://localhost:3099/docs)
+- **Swagger UI**: [http://localhost:3099/api](http://localhost:3099/api)
+- **Especificação OpenAPI**: [http://localhost:3099/api-json](http://localhost:3099/api-json)
 
-## 🔧 Configuração
+### Testando com o Bruno
 
-### Variáveis de Ambiente
+A maneira mais fácil de testar a API é com o [Bruno](https://www.usebruno.com/).
 
-```env
-# Aplicação
-PORT=3000
-NODE_ENV=production
+1. **Abra o Bruno** e clique em "Open Collection".
+2. **Selecione o diretório `bruno/`** na raiz deste projeto.
+3. A coleção "CDS-BOT" será importada com todas as requisições prontas para uso.
 
-# API Keys (autenticação entre sistemas)
-API_KEYS="key1,key2,key3"
-# ou via arquivo
-API_KEYS_FILE="./config/api-keys.txt"
+**Fluxo de Teste:**
 
-# WhatsApp
-WHATSAPP_SESSION_PATH="./baileys_auth"
-WHATSAPP_MAX_INSTANCES=5
-
-# Rate Limiting
-RATE_LIMIT_TTL=60
-RATE_LIMIT_MAX=100
-
-# Database (opcional - para logs)
-DATABASE_URL="postgresql://user:password@localhost:5432/whatsapp-service"
-```
-
-## 🛡️ Segurança
-
-- **API Key Authentication**: Autenticação via chaves de API para sistemas
-- **Rate Limiting**: Proteção contra spam e abuso por API Key
-- **CORS**: Configuração de origens permitidas
-- **Validação**: Sanitização automática de entrada
-- **Logs**: Rastreamento de todas as operações por sistema
-
-## 📊 Monitoramento
-
-- **Health Check**: `GET /health` - Status do serviço
-- **Logs Estruturados**: Rastreamento de mensagens enviadas
-- **Métricas**: Contadores de envio e falhas
-- **Status WhatsApp**: Monitoramento de conexões ativas
-
-## 🧪 Testes
-
-```bash
-cd back-nestjs
-
-# Testes unitários
-npm run test
-
-# Testes e2e
-npm run test:e2e
-
-# Coverage
-npm run test:cov
-```
-
-## 🚀 Deploy
-
-### Docker
-```bash
-docker build -t whatsapp-microservice .
-docker run -p 3000:3000 whatsapp-microservice
-```
-
-### Cloud
-- Suporte a Heroku, AWS, Google Cloud
-- Variáveis de ambiente via secrets
-- Volumes persistentes para sessões WhatsApp
+1. **Execute a requisição `Criar Sessão`**: Isso iniciará o processo de conexão no backend.
+2. **Execute a requisição `Stream de Eventos`**: O Bruno não suporta SSE diretamente no cliente de GUI. No entanto, você pode copiar a URL da requisição (`http://localhost:3099/whatsapp/sessions/meu-bot/stream`) e abri-la no seu navegador ou usar `curl` para ver os eventos:
+   ```bash
+   curl -N http://localhost:3099/whatsapp/sessions/meu-bot/stream
+   ```
+3. **Escaneie o QR Code**: Um evento `qr` será enviado pelo stream. Use um conversor de texto para QR code para exibi-lo e escaneá-lo com o seu WhatsApp.
+4. **Envie uma Mensagem**: Depois que o stream mostrar um evento de status `connected`, você pode usar a requisição `Enviar Mensagem` para enviar uma mensagem de teste.
 
 ## 📄 Licença
 
 Este projeto está sob a licença MIT.
-
----
-
-<div align="center">
-  <strong>📱 Microserviço WhatsApp - Envio de avisos e propagandas</strong>
-</div>
