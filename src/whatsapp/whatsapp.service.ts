@@ -48,7 +48,7 @@ export class WhatsappService {
           status: 'disconnected',
         });
         if (shouldReconnect) {
-          this.createSession(sessionId);
+          void this.createSession(sessionId);
         }
       } else if (connection === 'open') {
         this.connectionStatusSubject.next({ sessionId, status: 'connected' });
@@ -70,11 +70,20 @@ export class WhatsappService {
   }
 
   getSessions() {
-    return Array.from(this.sessions.keys()).map((sessionId) => ({
+    const sessions = Array.from(this.sessions.keys()).map((sessionId) => ({
       sessionId,
       status: this.sessions.get(sessionId) ? 'connected' : 'disconnected',
       lastActivity: new Date().toISOString(),
     }));
+
+    return {
+      success: true,
+      message: 'Sessões listadas com sucesso',
+      data: {
+        sessions,
+        total: sessions.length,
+      },
+    };
   }
 
   async sendMessage(sessionId: string, number: string, message: string) {
@@ -96,6 +105,7 @@ export class WhatsappService {
 
       return {
         success: true,
+        message: 'Mensagem enviada com sucesso',
         messageId: messageInfo.key.id,
         timestamp: new Date().toISOString(),
         to: number,

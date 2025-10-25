@@ -42,10 +42,20 @@ Este serviço fornece uma API simples e robusta para enviar mensagens do WhatsAp
 
 ## 📚 Documentação e Testes da API
 
-### Documentação Interativa
-- **Scalar**: [http://localhost:3099/docs](http://localhost:3099/docs)
-- **Swagger UI**: [http://localhost:3099/api](http://localhost:3099/api)
-- **Especificação OpenAPI**: [http://localhost:3099/api-json](http://localhost:3099/api-json)
+### 🎨 Documentação Interativa Melhorada
+- **🚀 Scalar (Recomendado)**: [http://localhost:3099/docs](http://localhost:3099/docs) - Interface moderna com tema personalizado
+- **📋 Swagger UI**: [http://localhost:3099/api](http://localhost:3099/api) - Interface clássica do Swagger
+- **📄 Especificação OpenAPI**: [http://localhost:3099/api-json](http://localhost:3099/api-json) - Especificação JSON completa
+- **📖 Exemplos Práticos**: [docs/api-examples.md](docs/api-examples.md) - Guia completo com exemplos de código
+
+### 🎯 Novidades da Documentação
+- ✨ **Interface moderna** com tema Kepler personalizado
+- 🎨 **CSS customizado** com gradientes e animações
+- 📱 **Exemplos práticos** em JavaScript e Python
+- 🔍 **Busca rápida** com atalho `Ctrl+K`
+- 🌙 **Modo escuro** por padrão
+- 📊 **Schemas detalhados** com validações
+- 🚀 **Múltiplos servidores** (desenvolvimento e produção)
 
 ### Testando com o Bruno
 
