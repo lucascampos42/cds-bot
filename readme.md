@@ -1,201 +1,197 @@
-# 🤖 CDS-BOT
+# 📱 WhatsApp Microservice
 
-**CDS-BOT** é uma plataforma completa para automação de WhatsApp com interface web moderna, construída com tecnologias de ponta para oferecer uma solução robusta, escalável e fácil de usar.
+**WhatsApp Microservice** é um serviço especializado para envio de mensagens via WhatsApp, projetado para ser integrado por outros sistemas que precisam enviar avisos, notificações e campanhas promocionais.
 
-## 💡 Ideia do Projeto
+## 💡 Sobre o Projeto
 
-O CDS-BOT foi desenvolvido para simplificar e automatizar a comunicação via WhatsApp, oferecendo:
+Este microserviço foi desenvolvido para fornecer uma API simples e robusta para envio de mensagens WhatsApp, oferecendo:
 
-- **Gestão Multi-Instância**: Controle múltiplas contas do WhatsApp simultaneamente
-- **Interface Web Intuitiva**: Dashboard moderno para gerenciar bots e conversas
-- **Automação Avançada**: Integração com N8N para workflows complexos
-- **API Robusta**: Endpoints RESTful para integração com sistemas externos
-- **Segurança Empresarial**: Autenticação JWT, controle de acesso e auditoria completa
+- **API RESTful**: Endpoints simples para integração com qualquer sistema
+- **Envio de Avisos**: Notificações automáticas para usuários
+- **Campanhas Promocionais**: Envio de propagandas e ofertas
+- **Multi-instância**: Suporte a múltiplas contas WhatsApp
+- **Confiabilidade**: Reconexão automática e controle de status
 
 ## 🏗️ Arquitetura
 
-O projeto segue uma arquitetura de microserviços containerizada:
+Microserviço containerizado com arquitetura simples e eficiente:
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Frontend      │    │   Backend       │    │   Automação     │
-│   Angular 20    │◄──►│   NestJS 11     │◄──►│   N8N           │
-│   Port: 4200    │    │   Port: 3000    │    │   Port: 5678    │
+│  Sistemas       │    │   WhatsApp      │    │   WhatsApp      │
+│  Externos       │◄──►│   Microservice  │◄──►│   API           │
+│  (Clientes)     │    │   NestJS        │    │   (Baileys)     │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         └───────────────────────┼───────────────────────┘
-                                 │
+                                │
                     ┌─────────────────┐
                     │   PostgreSQL    │
-                    │   Port: 5432    │
+                    │   (Opcional)    │
                     └─────────────────┘
 ```
 
 ## 🚀 Tecnologias
 
-### Backend (API NestJS)
+### Core do Microserviço
 - **Framework**: NestJS 11 com TypeScript
-- **ORM**: Prisma 6 com PostgreSQL
-- **Autenticação**: JWT + Passport
-- **WhatsApp**: Baileys (Multi-device API)
-- **Documentação**: OpenAPI/Swagger + Scalar
-- **Segurança**: Helmet, Rate Limiting, CORS
-- **Monitoramento**: Logs estruturados e métricas
+- **WhatsApp API**: Baileys (Multi-device API)
+- **Documentação**: OpenAPI/Swagger
+- **Segurança**: JWT, Rate Limiting, CORS
+- **Logs**: Sistema de logs estruturados
 - **Testes**: Jest (unitários e e2e)
-
-### Frontend (Angular)
-- **Framework**: Angular 20
-- **UI Library**: PrimeNG + PrimeIcons
-- **QR Code**: AngularX QRCode
-- **Styling**: SCSS + PrimeUIX Themes
-- **Build**: Angular CLI
-
-### Automação
-- **N8N**: Plataforma de automação visual
-- **Workflows**: Integração com WhatsApp e sistemas externos
 
 ### Infraestrutura
 - **Containerização**: Docker + Docker Compose
-- **Banco de Dados**: PostgreSQL 13
-- **Proxy Reverso**: Nginx (produção)
+- **Banco de Dados**: PostgreSQL (opcional para logs/histórico)
+- **Deploy**: Suporte a containers e cloud
 
 ## ✨ Funcionalidades
 
-### 🔐 Sistema de Autenticação
-- Registro e login com JWT
-- Controle de acesso baseado em roles (USER → CLIENT → ADMIN)
-- Refresh tokens automáticos
-- Notificações de segurança por email
-- Bloqueio automático por tentativas inválidas
+### 📱 Envio de Mensagens
+- **Envio de Texto**: Mensagens simples via API REST
+- **Avisos Automáticos**: Notificações para usuários específicos
+- **Campanhas Promocionais**: Envio em massa de ofertas e propagandas
+- **Validação de Números**: Verificação automática de números válidos
+- **Status de Entrega**: Confirmação de envio e entrega
 
-### 📱 Gestão de WhatsApp
-- **Multi-instância**: Gerencie múltiplas contas simultaneamente
-- **QR Code**: Autenticação visual via interface web
-- **Envio de Mensagens**: API para envio de textos
-- **Status em Tempo Real**: Monitoramento de conexões
+### 🔧 Gestão de Instâncias
+- **Multi-instância**: Múltiplas contas WhatsApp simultâneas
+- **QR Code**: Autenticação via endpoint dedicado
 - **Reconexão Automática**: Recuperação de falhas de conexão
+- **Status em Tempo Real**: Monitoramento de conexões ativas
+- **Isolamento**: Cada instância opera independentemente
 
-### 🎛️ Interface Administrativa
-- Dashboard com métricas em tempo real
-- Gestão completa de usuários
-- Logs de auditoria detalhados
-- Monitoramento de performance
-- Configurações de sistema
+### 🔐 Segurança e Controle
+- **API Key Authentication**: Autenticação entre sistemas via chaves de API
+- **Rate Limiting**: Proteção contra spam e abuso
+- **Logs Detalhados**: Rastreamento de todas as operações
+- **Validação de Entrada**: Sanitização automática de dados
 
-### 🔧 Automação (N8N)
-- Workflows visuais drag-and-drop
-- Integração com WhatsApp via API
-- Conectores para sistemas externos
-- Agendamento de tarefas
-- Processamento de webhooks
+### 🚀 Integração
+- **API RESTful**: Endpoints simples e documentados
+- **Webhooks**: Notificações de status para sistemas externos
+- **Formato JSON**: Comunicação padronizada
+- **SDKs**: Bibliotecas para linguagens populares (em desenvolvimento)
 
 ## 🚀 Como Executar
 
 ### Pré-requisitos
 - Docker e Docker Compose
 - Node.js 20+ (para desenvolvimento local)
-- PostgreSQL (se não usar Docker)
 
 ### Execução com Docker (Recomendado)
 
 1. **Clone o repositório**:
    ```bash
    git clone <url-do-repositorio>
-   cd cds-bot
+   cd whatsapp-microservice
    ```
 
 2. **Configure as variáveis de ambiente**:
    ```bash
-   cp api-nestjs/.env.example api-nestjs/.env.docker
+   cp back-nestjs/.env.example back-nestjs/.env
    # Edite as variáveis conforme necessário
    ```
 
-3. **Execute com Docker Compose**:
+3. **Execute o microserviço**:
    ```bash
    docker-compose up -d
    ```
 
-4. **Acesse as aplicações**:
-   - **Frontend**: http://localhost:4200
+4. **Acesse o serviço**:
    - **API**: http://localhost:3000
    - **Documentação**: http://localhost:3000/docs
-   - **N8N**: http://localhost:5678
 
 ### Desenvolvimento Local
 
-#### Backend (API)
 ```bash
-cd api-nestjs
+cd back-nestjs
 npm install
 cp .env.example .env
-# Configure DATABASE_URL no .env
-npx prisma migrate dev
-npm run seed
+# Configure as variáveis no .env
 npm run start:dev
 ```
 
-#### Frontend
+### Exemplo de Uso da API
+
 ```bash
-cd front-angular
-npm install
-ng serve
+# Enviar mensagem
+curl -X POST http://localhost:3000/whatsapp/send \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -d '{
+    "instance": "default",
+    "number": "5511999999999",
+    "message": "Olá! Esta é uma mensagem de teste."
+  }'
 ```
 
-## 📚 Documentação
+## 📚 Documentação da API
 
-### API Documentation
+### Endpoints Principais
+
+#### WhatsApp
+```
+GET  /whatsapp/instances - Listar instâncias ativas
+POST /whatsapp/qr/:instance - Obter QR Code para autenticação
+POST /whatsapp/send - Enviar mensagem
+GET  /whatsapp/status/:instance - Status da instância
+```
+
+#### Monitoramento
+```
+GET  /health - Status do serviço
+GET  /metrics - Métricas de uso (opcional)
+```
+
+### Documentação Interativa
 - **Swagger UI**: http://localhost:3000/docs
 - **OpenAPI JSON**: http://localhost:3000/docs-json
-- **Postman/Bruno**: Coleções disponíveis em `api-nestjs/bruno/`
-
-### Guias Específicos
-- [Configuração Docker](api-nestjs/docs/DOCKER.md)
-- [Sistema de Segurança](api-nestjs/docs/SECURITY.md)
-- [WhatsApp Integration](api-nestjs/docs/WHATSAPP.md)
-- [Exception Filters](api-nestjs/docs/EXCEPTION_FILTERS.md)
-- [Response Helper](api-nestjs/docs/RESPONSE_HELPER.md)
 
 ## 🔧 Configuração
 
-### Variáveis de Ambiente Principais
+### Variáveis de Ambiente
 
 ```env
-# Database
-DATABASE_URL="postgresql://user:password@localhost:5432/cds-bot"
+# Aplicação
+PORT=3000
+NODE_ENV=production
 
-# JWT
+# JWT (para autenticação da API)
 JWT_SECRET="your-super-secret-key"
-JWT_ACCESS_TTL="1h"
-JWT_REFRESH_TTL="7d"
-
-# Email (opcional)
-MAIL_HOST="smtp.gmail.com"
-MAIL_USER="your-email@gmail.com"
-MAIL_PASS="your-app-password"
+JWT_ACCESS_TTL="24h"
 
 # WhatsApp
 WHATSAPP_SESSION_PATH="./baileys_auth"
+WHATSAPP_MAX_INSTANCES=5
+
+# Rate Limiting
+RATE_LIMIT_TTL=60
+RATE_LIMIT_MAX=100
+
+# Database (opcional - para logs)
+DATABASE_URL="postgresql://user:password@localhost:5432/whatsapp-service"
 ```
 
 ## 🛡️ Segurança
 
-- **Rate Limiting**: Proteção contra ataques de força bruta
-- **Helmet**: Headers de segurança HTTP
-- **CORS**: Configuração restritiva de origens
+- **Rate Limiting**: Proteção contra spam e abuso
+- **JWT Authentication**: Acesso seguro à API
+- **CORS**: Configuração de origens permitidas
 - **Validação**: Sanitização automática de entrada
-- **Auditoria**: Log completo de ações do usuário
-- **Criptografia**: Senhas com bcrypt + salt
+- **Logs**: Rastreamento de todas as operações
 
 ## 📊 Monitoramento
 
-- **Health Checks**: Endpoints de saúde da aplicação
-- **Métricas**: Performance e uso de recursos
-- **Logs Estruturados**: Rastreamento detalhado de eventos
-- **Audit Trail**: Histórico completo de ações
+- **Health Check**: `GET /health` - Status do serviço
+- **Logs Estruturados**: Rastreamento de mensagens enviadas
+- **Métricas**: Contadores de envio e falhas
+- **Status WhatsApp**: Monitoramento de conexões ativas
 
 ## 🧪 Testes
 
 ```bash
+cd back-nestjs
+
 # Testes unitários
 npm run test
 
@@ -206,33 +202,25 @@ npm run test:e2e
 npm run test:cov
 ```
 
-## 🤝 Contribuição
+## 🚀 Deploy
 
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/nova-funcionalidade`)
-3. Commit suas mudanças (`git commit -am 'Adiciona nova funcionalidade'`)
-4. Push para a branch (`git push origin feature/nova-funcionalidade`)
-5. Abra um Pull Request
+### Docker
+```bash
+docker build -t whatsapp-microservice .
+docker run -p 3000:3000 whatsapp-microservice
+```
+
+### Cloud
+- Suporte a Heroku, AWS, Google Cloud
+- Variáveis de ambiente via secrets
+- Volumes persistentes para sessões WhatsApp
 
 ## 📄 Licença
 
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
-
-## 👨‍💻 Autor
-
-**Lucas Campos** - [GitHub](https://github.com/lucascampos42)
-
----
-
-## 🆘 Suporte
-
-Para suporte e dúvidas:
-- 📧 Email: dev@empresa.com
-- 🐛 Issues: [GitHub Issues](https://github.com/seu-usuario/cds-bot/issues)
-- 📖 Documentação: [Wiki do Projeto](https://github.com/seu-usuario/cds-bot/wiki)
+Este projeto está sob a licença MIT.
 
 ---
 
 <div align="center">
-  <strong>🚀 Desenvolvido com ❤️ para automatizar o futuro da comunicação</strong>
+  <strong>📱 Microserviço WhatsApp - Envio de avisos e propagandas</strong>
 </div>
