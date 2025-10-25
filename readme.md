@@ -68,6 +68,7 @@ Microserviço containerizado com arquitetura simples e eficiente:
 
 ### 🚀 Integração
 - **API RESTful**: Endpoints simples e documentados
+- **Autenticação API-to-API**: Chaves de API para sistemas autorizados
 - **Webhooks**: Notificações de status para sistemas externos
 - **Formato JSON**: Comunicação padronizada
 - **SDKs**: Bibliotecas para linguagens populares (em desenvolvimento)
