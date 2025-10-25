@@ -4,7 +4,9 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    cors: true, // Habilitar CORS para WebSocket
+  });
 
   // Configuração do Swagger/OpenAPI
   const config = new DocumentBuilder()
@@ -59,6 +61,7 @@ async function bootstrap() {
   app.use(
     '/docs',
     apiReference({
+      content: document,
       theme: 'kepler',
       metaData: {
         title: 'CDS-BOT - API WhatsApp',

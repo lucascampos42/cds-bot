@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CDS-BOT - WebSocket Client</title>
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #4a5568;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            background: #f8fafc;
+        }
+        
+        .section h3 {
+            color: #2d3748;
+            margin-top: 0;
+        }
+        
+        input, button, textarea {
+            padding: 12px;
+            margin: 5px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        button {
+            background: #4299e1;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #3182ce;
+        }
+        
+        button:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        
+        .status.connected {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .status.disconnected {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        
+        .log {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+        
+        .qr-code {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 CDS-BOT - WebSocket Client</h1>
+        
+        <div class="section">
+            <h3>🔌 Conexão</h3>
+            <div id="connectionStatus" class="status disconnected">Desconectado</div>
+            <button id="connectBtn" onclick="connect()">Conectar</button>
+            <button id="disconnectBtn" onclick="disconnect()" disabled>Desconectar</button>
+        </div>
+
+        <div class="grid">
+            <div class="section">
+                <h3>📱 Gerenciar Sessão</h3>
+                <input type="text" id="sessionId" placeholder="ID da Sessão (ex: meu-bot)" value="meu-bot">
+                <br>
+                <button onclick="joinSession()">Entrar na Sessão</button>
+                <button onclick="leaveSession()">Sair da Sessão</button>
+                <button onclick="getSessions()">Listar Sessões</button>
+                
+                <div id="qrCode" class="qr-code" style="display: none;">
+                    <h4>📱 QR Code para WhatsApp</h4>
+                    <div id="qrDisplay"></div>
+                    <p>Escaneie este QR code com seu WhatsApp</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>💬 Enviar Mensagem</h3>
+                <input type="text" id="phoneNumber" placeholder="Número (ex: 5511999999999)">
+                <br>
+                <textarea id="messageText" placeholder="Digite sua mensagem..." rows="3" style="width: 90%;"></textarea>
+                <br>
+                <button onclick="sendMessage()">Enviar Mensagem</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>📋 Log de Eventos</h3>
+            <button onclick="clearLog()">Limpar Log</button>
+            <div id="log" class="log"></div>
+        </div>
+    </div>
+
+    <script>
+        let socket = null;
+        let currentSessionId = null;
+
+        function log(message, type = 'info') {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
+            logElement.textContent += `[${timestamp}] ${prefix} ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function updateConnectionStatus(connected) {
+            const statusElement = document.getElementById('connectionStatus');
+            const connectBtn = document.getElementById('connectBtn');
+            const disconnectBtn = document.getElementById('disconnectBtn');
+            
+            if (connected) {
+                statusElement.textContent = 'Conectado';
+                statusElement.className = 'status connected';
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+            } else {
+                statusElement.textContent = 'Desconectado';
+                statusElement.className = 'status disconnected';
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+            }
+        }
+
+        function connect() {
+            if (socket) return;
+
+            log('Conectando ao WebSocket...');
+            socket = io('ws://localhost:3099/whatsapp');
+
+            socket.on('connect', () => {
+                log('Conectado ao WebSocket!', 'success');
+                updateConnectionStatus(true);
+            });
+
+            socket.on('disconnect', () => {
+                log('Desconectado do WebSocket', 'error');
+                updateConnectionStatus(false);
+                socket = null;
+            });
+
+            socket.on('connected', (data) => {
+                log(`Servidor confirmou conexão: ${data.message}`);
+            });
+
+            socket.on('joined-session', (data) => {
+                log(`Entrou na sessão: ${data.sessionId}`, 'success');
+                currentSessionId = data.sessionId;
+            });
+
+            socket.on('left-session', (data) => {
+                log(`Saiu da sessão: ${data.sessionId}`);
+                currentSessionId = null;
+                hideQRCode();
+            });
+
+            socket.on('qr-code', (data) => {
+                log(`QR Code recebido para sessão: ${data.sessionId}`);
+                showQRCode(data.qr);
+            });
+
+            socket.on('status-change', (data) => {
+                log(`Status da sessão ${data.sessionId}: ${data.status}`, 'success');
+                if (data.status === 'open') {
+                    hideQRCode();
+                    log('WhatsApp conectado! Pronto para enviar mensagens.', 'success');
+                }
+            });
+
+            socket.on('message-received', (data) => {
+                log(`📨 Mensagem recebida de ${data.from}: ${data.message}`, 'success');
+            });
+
+            socket.on('message-sent', (data) => {
+                log(`📤 Mensagem enviada para ${data.number}: ${data.message}`, 'success');
+            });
+
+            socket.on('message-sent-notification', (data) => {
+                log(`📤 Outro cliente enviou mensagem para ${data.number}`, 'info');
+            });
+
+            socket.on('sessions-list', (data) => {
+                log(`📋 Sessões ativas: ${JSON.stringify(data.sessions, null, 2)}`);
+            });
+
+            socket.on('error', (data) => {
+                log(`Erro: ${data.message}`, 'error');
+            });
+
+            socket.on('session-error', (data) => {
+                log(`Erro na sessão ${data.sessionId}: ${data.error}`, 'error');
+            });
+        }
+
+        function disconnect() {
+            if (socket) {
+                socket.disconnect();
+                socket = null;
+                updateConnectionStatus(false);
+                hideQRCode();
+                log('Desconectado manualmente');
+            }
+        }
+
+        function joinSession() {
+            if (!socket) {
+                log('Conecte-se primeiro!', 'error');
+                return;
+            }
+
+            const sessionId = document.getElementById('sessionId').value;
+            if (!sessionId) {
+                log('Digite um ID de sessão!', 'error');
+                return;
+            }
+
+            socket.emit('join-session', { sessionId });
+            log(`Tentando entrar na sessão: ${sessionId}`);
+        }
+
+        function leaveSession() {
+            if (!socket || !currentSessionId) {
+                log('Não está em nenhuma sessão!', 'error');
+                return;
+            }
+
+            socket.emit('leave-session', { sessionId: currentSessionId });
+            log(`Saindo da sessão: ${currentSessionId}`);
+        }
+
+        function getSessions() {
+            if (!socket) {
+                log('Conecte-se primeiro!', 'error');
+                return;
+            }
+
+            socket.emit('get-sessions');
+            log('Solicitando lista de sessões...');
+        }
+
+        function sendMessage() {
+            if (!socket) {
+                log('Conecte-se primeiro!', 'error');
+                return;
+            }
+
+            if (!currentSessionId) {
+                log('Entre em uma sessão primeiro!', 'error');
+                return;
+            }
+
+            const number = document.getElementById('phoneNumber').value;
+            const message = document.getElementById('messageText').value;
+
+            if (!number || !message) {
+                log('Preencha o número e a mensagem!', 'error');
+                return;
+            }
+
+            socket.emit('send-message', {
+                sessionId: currentSessionId,
+                number,
+                message
+            });
+
+            log(`Enviando mensagem para ${number}...`);
+            document.getElementById('messageText').value = '';
+        }
+
+        function showQRCode(qr) {
+            const qrElement = document.getElementById('qrCode');
+            const qrDisplay = document.getElementById('qrDisplay');
+            
+            // Criar QR code usando uma biblioteca online
+            qrDisplay.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qr)}" alt="QR Code">`;
+            qrElement.style.display = 'block';
+        }
+
+        function hideQRCode() {
+            document.getElementById('qrCode').style.display = 'none';
+        }
+
+        function clearLog() {
+            document.getElementById('log').textContent = '';
+        }
+
+        // Auto-conectar ao carregar a página
+        window.onload = () => {
+            log('Cliente WebSocket carregado. Clique em "Conectar" para começar.');
+        };
+    </script>
+</body>
+</html>

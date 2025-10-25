@@ -27,14 +27,7 @@ export class WhatsappService {
       const { connection, lastDisconnect, qr } = update;
 
       if (qr) {
-        console.log(`\n🔗 QR Code gerado para a sessão: ${sessionId}`);
-        console.log(
-          '📱 Escaneie o QR code abaixo com seu WhatsApp ou use o stream SSE\n',
-        );
-        // Imprime o QR code no terminal
         qrcode.generate(qr, { small: true });
-
-        console.log('\n'); // Linha em branco após o QR code
         this.qrCodeSubject.next({ sessionId, qr });
       }
 
@@ -94,7 +87,6 @@ export class WhatsappService {
     }
 
     try {
-      // Formatar número para o padrão do WhatsApp
       const formattedNumber = number.includes('@')
         ? number
         : `${number}@s.whatsapp.net`;
