@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Sse, Param } from '@nestjs/common';
 import { WhatsappService } from './whatsapp.service';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, filter } from 'rxjs/operators';
 import {
   ApiTags,
   ApiOperation,
@@ -28,9 +28,10 @@ export class WhatsappController {
     description: 'A sessão foi iniciada. Aguarde o QR code no stream.',
   })
   async createSession(@Body('sessionId') sessionId: string): Promise<any> {
-    this.whatsappService.createSession(sessionId);
+    void this.whatsappService.createSession(sessionId);
     return {
-      message: 'A sessão está sendo iniciada. Conecte-se ao stream para obter o QR code.',
+      message:
+        'A sessão está sendo iniciada. Conecte-se ao stream para obter o QR code.',
     };
   }
 
@@ -55,21 +56,15 @@ export class WhatsappController {
   })
   stream(@Param('sessionId') sessionId: string): Observable<MessageEvent> {
     const qrStream = this.whatsappService.getQRCodeStream().pipe(
-      map((event) => {
-        if (event.sessionId === sessionId) {
-          return new MessageEvent('qr', { data: event.qr });
-        }
-      }),
+      filter((event) => event.sessionId === sessionId),
+      map((event) => new MessageEvent('qr', { data: event.qr })),
     );
 
     const statusStream = this.whatsappService
       .getConnectionStatusStream()
       .pipe(
-        map((event) => {
-          if (event.sessionId === sessionId) {
-            return new MessageEvent('status', { data: event.status });
-          }
-        }),
+        filter((event) => event.sessionId === sessionId),
+        map((event) => new MessageEvent('status', { data: event.status })),
       );
 
     return new Observable((subscriber) => {

@@ -4,12 +4,16 @@ import makeWASocket, {
   useMultiFileAuthState,
 } from '@whiskeysockets/baileys';
 import { Subject } from 'rxjs';
+import * as qrcode from 'qrcode-terminal';
 
 @Injectable()
 export class WhatsappService {
   private sessions: Map<string, any> = new Map();
   public qrCodeSubject = new Subject<{ sessionId: string; qr: string }>();
-  public connectionStatusSubject = new Subject<{ sessionId: string; status: string }>();
+  public connectionStatusSubject = new Subject<{
+    sessionId: string;
+    status: string;
+  }>();
 
   async createSession(sessionId: string): Promise<any> {
     const { state, saveCreds } = await useMultiFileAuthState(
@@ -17,13 +21,20 @@ export class WhatsappService {
     );
     const sock = makeWASocket({
       auth: state,
-      printQRInTerminal: false, // Desativado para capturar o QR code
     });
 
     sock.ev.on('connection.update', (update) => {
       const { connection, lastDisconnect, qr } = update;
 
       if (qr) {
+        console.log(`\n🔗 QR Code gerado para a sessão: ${sessionId}`);
+        console.log(
+          '📱 Escaneie o QR code abaixo com seu WhatsApp ou use o stream SSE\n',
+        );
+        // Imprime o QR code no terminal
+        qrcode.generate(qr, { small: true });
+
+        console.log('\n'); // Linha em branco após o QR code
         this.qrCodeSubject.next({ sessionId, qr });
       }
 
@@ -31,8 +42,11 @@ export class WhatsappService {
         const shouldReconnect =
           lastDisconnect?.error &&
           (lastDisconnect.error as any)?.output?.statusCode !==
-          DisconnectReason.loggedOut;
-        this.connectionStatusSubject.next({ sessionId, status: 'disconnected' });
+            DisconnectReason.loggedOut;
+        this.connectionStatusSubject.next({
+          sessionId,
+          status: 'disconnected',
+        });
         if (shouldReconnect) {
           this.createSession(sessionId);
         }
