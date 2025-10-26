@@ -1,0 +1,15 @@
+meta {
+  name: Listar Sessões Disponíveis (Helpdesk)
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{host}}/helpdesk/sessions/available
+  body: none
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}

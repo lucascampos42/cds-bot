@@ -13,6 +13,17 @@ Este serviço fornece uma API robusta e escalável para envio de mensagens do Wh
 - **Gestão de Tenants**: Sistema completo para criação e gerenciamento de clientes
 - **Health Check**: Monitoramento automático da saúde das conexões
 
+## 🚀 Funcionalidades Principais
+
+- **Gestão de Sessões WhatsApp**: Criação, monitoramento e controle de múltiplas sessões
+- **Arquitetura Modular**: Separação clara entre conexões (WhatsApp) e mensageria (Helpdesk)
+- **Envio de Mensagens**: API REST para envio de mensagens individuais e em lote via Helpdesk
+- **WebSocket em Tempo Real**: Eventos de QR Code, status de conexão e mensagens
+- **Multi-tenant**: Suporte a múltiplos clientes com isolamento de dados
+- **Helpdesk Integrado**: Sistema completo de atendimento ao cliente com envio de mensagens
+- **MessagingService Centralizado**: Serviço compartilhado para envio de mensagens
+- **API RESTful**: Documentação completa com Swagger/OpenAPI
+
 ## 🚀 Tecnologias
 
 - **Framework**: NestJS 11 com TypeScript
@@ -28,11 +39,20 @@ Este serviço fornece uma API robusta e escalável para envio de mensagens do Wh
 ```
 cds-bot/
 ├── 📁 src/                    # Código fonte da aplicação
-│   ├── 📁 whatsapp/          # Módulo principal do WhatsApp
+│   ├── 📁 whatsapp/          # Módulo WhatsApp (conexões e sessões)
+│   │   ├── 📁 dto/           # Data Transfer Objects
+│   │   ├── 📁 services/      # Serviços específicos
+│   │   └── ...
 │   ├── 📁 tenant-management/ # Gestão de clientes/tenants
-│   ├── 📁 helpdesk/         # Módulo de atendimento
+│   ├── 📁 helpdesk/         # Módulo Helpdesk (envio de mensagens e atendimento)
+│   │   ├── 📁 dto/           # DTOs incluindo messaging.dto.ts
+│   │   ├── 📁 services/      # Serviços de conversa e interação
+│   │   └── ...
 │   ├── 📁 marketing/        # Módulo de marketing (futuro)
 │   └── 📁 shared/           # Recursos compartilhados
+│       ├── 📁 services/     # MessagingService centralizado
+│       ├── 📁 dto/          # DTOs compartilhados
+│       └── 📁 interfaces/   # Interfaces comuns
 ├── 📁 prisma/               # Schema e migrações do banco
 ├── 📁 bruno/                # Coleção de testes da API
 ├── 📁 docs/                 # Documentação adicional
@@ -140,6 +160,22 @@ cds-bot/
 - 🌙 **Modo escuro** por padrão
 - 📊 **Schemas detalhados** com validações
 - 🚀 **Múltiplos servidores** (desenvolvimento e produção)
+
+### Principais Endpoints
+
+#### WhatsApp (Conexões e Sessões)
+- `POST /whatsapp/session` - Criar nova sessão
+- `GET /whatsapp/sessions` - Listar sessões ativas
+- `GET /whatsapp/events/stream` - Stream de eventos (SSE)
+
+#### Helpdesk (Mensageria e Atendimento)
+- `POST /helpdesk/messages/send` - Enviar mensagem individual
+- `POST /helpdesk/messages/bulk` - Enviar mensagens em lote
+- `GET /helpdesk/sessions/available` - Listar sessões disponíveis
+- `POST /helpdesk/conversation/start` - Iniciar conversa
+- `GET /helpdesk/conversations` - Listar conversas ativas
+
+> **Nota**: Os endpoints de envio de mensagem foram movidos do módulo WhatsApp para o módulo Helpdesk para melhor organização arquitetural.
 
 ### Testando com o Bruno
 

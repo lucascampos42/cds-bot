@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, Matches, MaxLength, IsOptional, IsEnum } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  Matches,
+  MaxLength,
+  IsOptional,
+  IsEnum,
+} from 'class-validator';
 
 export enum MessageType {
   TEXT = 'text',

@@ -1,0 +1,38 @@
+meta {
+  name: Enviar Mensagem em Lote (Helpdesk)
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{host}}/helpdesk/messages/bulk
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "messages": [
+      {
+        "sessionId": "{{sessionId}}",
+        "to": "553391448945",
+        "message": "Primeira mensagem do lote",
+        "type": "text",
+        "agentId": "agent-001",
+        "conversationId": "conv-001"
+      },
+      {
+        "sessionId": "{{sessionId}}",
+        "to": "553391448946",
+        "message": "Segunda mensagem do lote",
+        "type": "text",
+        "agentId": "agent-001",
+        "conversationId": "conv-002"
+      }
+    ]
+  }
+}
