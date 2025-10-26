@@ -10,7 +10,7 @@ import { SharedModule } from '../shared/shared.module';
 @Module({
   imports: [WhatsappModule, SharedModule],
   controllers: [HelpdeskController],
-  providers: [HelpdeskService, ConversationService, InteractionService],
+  providers: [HelpdeskService, ConversationService, InteractionService, HelpdeskGateway],
   exports: [HelpdeskService],
 })
 export class HelpdeskModule {}
