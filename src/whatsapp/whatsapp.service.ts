@@ -3,21 +3,34 @@ import makeWASocket, {
   DisconnectReason,
   useMultiFileAuthState,
   WASocket,
-  proto,
 } from '@whiskeysockets/baileys';
 import { Subject } from 'rxjs';
 import * as qrcode from 'qrcode-terminal';
+import {
+  IWhatsappService,
+  IWhatsappMessage,
+  IWhatsappSession,
+  IWhatsappMessageReceived,
+  IWhatsappMessageStatus,
+} from '../shared/interfaces';
 
 @Injectable()
-export class WhatsappService {
+export class WhatsappService implements IWhatsappService {
   private sessions: Map<string, WASocket> = new Map();
+  private sessionInfo: Map<string, IWhatsappSession> = new Map();
   public qrCodeSubject = new Subject<{ sessionId: string; qr: string }>();
   public connectionStatusSubject = new Subject<{
     sessionId: string;
     status: string;
   }>();
+  private messageReceivedCallbacks: ((
+    message: IWhatsappMessageReceived,
+  ) => void)[] = [];
+  private messageStatusCallbacks: ((status: IWhatsappMessageStatus) => void)[] =
+    [];
+  private sessionStatusCallbacks: ((session: IWhatsappSession) => void)[] = [];
 
-  async createSession(sessionId: string): Promise<WASocket> {
+  async createSession(sessionId: string): Promise<void> {
     const { state, saveCreds } = await useMultiFileAuthState(
       `./sessions/${sessionId}`,
     );
@@ -40,6 +53,23 @@ export class WhatsappService {
         }, 0);
       }
 
+      const sessionInfo: IWhatsappSession = {
+        sessionId,
+        status:
+          connection === 'open'
+            ? 'connected'
+            : connection === 'close'
+              ? 'disconnected'
+              : connection === 'connecting'
+                ? 'connecting'
+                : 'error',
+        qrCode: qr,
+        lastActivity: new Date(),
+      };
+
+      this.sessionInfo.set(sessionId, sessionInfo);
+      this.sessionStatusCallbacks.forEach((callback) => callback(sessionInfo));
+
       if (connection === 'close') {
         const shouldReconnect =
           (lastDisconnect?.error as { output?: { statusCode: number } })?.output
@@ -51,7 +81,6 @@ export class WhatsappService {
     });
 
     this.sessions.set(sessionId, sock);
-    return sock;
   }
 
   getQRCodeStream() {
@@ -77,35 +106,34 @@ export class WhatsappService {
     };
   }
 
-  async sendMessage(sessionId: string, number: string, message: string) {
+  async getSession(sessionId: string): Promise<IWhatsappSession | null> {
+    return this.sessionInfo.get(sessionId) || null;
+  }
+
+  async getAllSessions(): Promise<IWhatsappSession[]> {
+    return Array.from(this.sessionInfo.values());
+  }
+
+  async destroySession(sessionId: string): Promise<void> {
     const session = this.sessions.get(sessionId);
-
-    if (!session) {
-      throw new Error(`Sessão ${sessionId} não encontrada`);
+    if (session) {
+      await session.logout();
+      this.sessions.delete(sessionId);
+      this.sessionInfo.delete(sessionId);
     }
+  }
 
-    try {
-      const formattedNumber = number.includes('@')
-        ? number
-        : `${number}@s.whatsapp.net`;
+  onMessageReceived(
+    callback: (message: IWhatsappMessageReceived) => void,
+  ): void {
+    this.messageReceivedCallbacks.push(callback);
+  }
 
-      const messageInfo = await session.sendMessage(
-        formattedNumber,
-        { text: message },
-      );
+  onMessageStatus(callback: (status: IWhatsappMessageStatus) => void): void {
+    this.messageStatusCallbacks.push(callback);
+  }
 
-      return {
-        success: true,
-        message: 'Mensagem enviada com sucesso',
-        messageId: messageInfo?.key?.id || 'unknown',
-        timestamp: new Date().toISOString(),
-        to: number,
-        sessionId,
-      };
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Erro desconhecido';
-      throw new Error(`Falha ao enviar mensagem: ${errorMessage}`);
-    }
+  onSessionStatus(callback: (session: IWhatsappSession) => void): void {
+    this.sessionStatusCallbacks.push(callback);
   }
 }

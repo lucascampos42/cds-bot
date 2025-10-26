@@ -1,20 +1,124 @@
-# 📱 CDS-BOT - API do WhatsApp
+# 📱 CDS-BOT - API Multi-Tenant do WhatsApp
 
-O **CDS-BOT** é uma API de serviço para enviar mensagens via WhatsApp, projetada para ser integrada a outros sistemas que precisam enviar avisos, notificações e campanhas promocionais.
+O **CDS-BOT** é uma API de serviço multi-tenant para enviar mensagens via WhatsApp, projetada para ser integrada a outros sistemas que precisam enviar avisos, notificações e campanhas promocionais. Cada cliente possui seu próprio schema isolado no banco de dados.
 
 ## ✨ Sobre o Projeto
 
-Este serviço fornece uma API simples e robusta para enviar mensagens do WhatsApp, oferecendo:
+Este serviço fornece uma API robusta e escalável para envio de mensagens do WhatsApp, oferecendo:
 
-- **API RESTful**: Endpoints simples para integração com qualquer sistema.
-- **Conexão em Tempo Real**: Autenticação via QR code em tempo real.
-- **Reconexão Automática**: Mantém a sessão ativa e reconecta automaticamente.
+- **API RESTful**: Endpoints simples para integração com qualquer sistema
+- **Multi-Tenant**: Isolamento completo de dados por cliente via schemas PostgreSQL
+- **Conexão em Tempo Real**: Autenticação via QR code em tempo real
+- **Reconexão Automática**: Mantém a sessão ativa e reconecta automaticamente
+- **Gestão de Tenants**: Sistema completo para criação e gerenciamento de clientes
+- **Health Check**: Monitoramento automático da saúde das conexões
+
+## 🚀 Funcionalidades Principais
+
+- **Gestão de Sessões WhatsApp**: Criação, monitoramento e controle de múltiplas sessões
+- **Arquitetura Modular**: Separação clara entre conexões (WhatsApp) e mensageria (Helpdesk)
+- **Envio de Mensagens**: API REST para envio de mensagens individuais e em lote via Helpdesk
+- **WebSocket em Tempo Real**: Eventos de QR Code, status de conexão e mensagens
+- **Multi-tenant**: Suporte a múltiplos clientes com isolamento de dados
+- **Helpdesk Integrado**: Sistema completo de atendimento ao cliente com envio de mensagens
+- **MessagingService Centralizado**: Serviço compartilhado para envio de mensagens
+- **API RESTful**: Documentação completa com Swagger/OpenAPI
 
 ## 🚀 Tecnologias
 
 - **Framework**: NestJS 11 com TypeScript
+- **Banco de Dados**: PostgreSQL com Prisma ORM (Multi-Schema)
 - **WhatsApp API**: Baileys (API Multi-dispositivo)
 - **Documentação da API**: OpenAPI (compatível com Scalar, Bruno e Swagger UI)
+- **Agendamento**: @nestjs/schedule para tarefas automáticas
+
+## 📁 Estrutura do Projeto
+
+### 🗂️ Pastas Principais
+
+```
+cds-bot/
+├── 📁 src/                    # Código fonte da aplicação
+│   ├── 📁 whatsapp/          # Módulo WhatsApp (conexões e sessões)
+│   │   ├── 📁 dto/           # Data Transfer Objects
+│   │   ├── 📁 services/      # Serviços específicos
+│   │   └── ...
+│   ├── 📁 tenant-management/ # Gestão de clientes/tenants
+│   ├── 📁 helpdesk/         # Módulo Helpdesk (envio de mensagens e atendimento)
+│   │   ├── 📁 dto/           # DTOs incluindo messaging.dto.ts
+│   │   ├── 📁 services/      # Serviços de conversa e interação
+│   │   └── ...
+│   ├── 📁 marketing/        # Módulo de marketing (futuro)
+│   └── 📁 shared/           # Recursos compartilhados
+│       ├── 📁 services/     # MessagingService centralizado
+│       ├── 📁 dto/          # DTOs compartilhados
+│       └── 📁 interfaces/   # Interfaces comuns
+├── 📁 prisma/               # Schema e migrações do banco
+├── 📁 bruno/                # Coleção de testes da API
+├── 📁 docs/                 # Documentação adicional
+├── 📁 sql/                  # Scripts SQL para setup
+└── 📁 test/                 # Testes automatizados
+```
+
+### 📋 Detalhamento das Pastas
+
+#### 🔧 `/src/whatsapp/`
+**Módulo principal para integração com WhatsApp**
+- `config/` - Configurações de conexão e ambiente
+- `database/` - Gerenciador de conexões multi-schema e health check
+- `dto/` - Data Transfer Objects para validação
+- `services/` - Lógica de negócio do WhatsApp
+- `swagger/` - Configurações da documentação API
+- Schema do banco de dados está em `/prisma/schema.prisma`
+
+#### 🏢 `/src/tenant-management/`
+**Sistema de gestão de clientes/tenants**
+- `dto/` - DTOs para criação e gestão de tenants
+- `services/` - Lógica para criação de schemas e validação
+- `tenant.controller.ts` - Endpoints REST para onboarding
+- `tenant.module.ts` - Módulo NestJS para tenants
+
+#### 🎧 `/src/helpdesk/`
+**Módulo de atendimento ao cliente**
+- Sistema de tickets e suporte
+- Integração com WhatsApp para atendimento
+
+#### 📢 `/src/marketing/`
+**Módulo de campanhas de marketing**
+- Envio de campanhas em massa
+- Segmentação de contatos
+- Relatórios de engajamento
+
+#### 🔗 `/src/shared/`
+**Recursos compartilhados entre módulos**
+- `interfaces/` - Interfaces TypeScript globais
+- `shared.module.ts` - Módulo com serviços compartilhados
+
+#### 🗄️ `/prisma/`
+**Schema e migrações do banco de dados**
+- `schema.prisma` - Definição do schema multi-tenant
+- `migrations/` - Histórico de migrações do banco
+
+#### 🧪 `/bruno/`
+**Coleção de testes da API**
+- `criar-sessao.bru` - Teste de criação de sessão
+- `enviar-mensagem.bru` - Teste de envio de mensagem
+- `listar-sessoes.bru` - Teste de listagem de sessões
+- `stream-eventos.bru` - Teste de eventos em tempo real
+- `environments/` - Configurações de ambiente para testes
+
+#### 📚 `/docs/`
+**Documentação adicional**
+- `api-examples.md` - Exemplos práticos de uso da API
+- `websocket-example.html` - Exemplo de WebSocket
+
+#### 🗄️ `/sql/`
+**Scripts SQL para configuração**
+- `create-tenants-table.sql` - Script para criar tabela de controle de tenants
+
+#### ✅ `/test/`
+**Testes automatizados**
+- Testes end-to-end e unitários
 
 ## 🚀 Como Executar
 
@@ -56,6 +160,22 @@ Este serviço fornece uma API simples e robusta para enviar mensagens do WhatsAp
 - 🌙 **Modo escuro** por padrão
 - 📊 **Schemas detalhados** com validações
 - 🚀 **Múltiplos servidores** (desenvolvimento e produção)
+
+### Principais Endpoints
+
+#### WhatsApp (Conexões e Sessões)
+- `POST /whatsapp/session` - Criar nova sessão
+- `GET /whatsapp/sessions` - Listar sessões ativas
+- `GET /whatsapp/events/stream` - Stream de eventos (SSE)
+
+#### Helpdesk (Mensageria e Atendimento)
+- `POST /helpdesk/messages/send` - Enviar mensagem individual
+- `POST /helpdesk/messages/bulk` - Enviar mensagens em lote
+- `GET /helpdesk/sessions/available` - Listar sessões disponíveis
+- `POST /helpdesk/conversation/start` - Iniciar conversa
+- `GET /helpdesk/conversations` - Listar conversas ativas
+
+> **Nota**: Os endpoints de envio de mensagem foram movidos do módulo WhatsApp para o módulo Helpdesk para melhor organização arquitetural.
 
 ### Testando com o Bruno
 

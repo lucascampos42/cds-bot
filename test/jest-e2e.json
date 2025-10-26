@@ -5,5 +5,18 @@
   "testRegex": ".e2e-spec.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "transformIgnorePatterns": [
+    "node_modules/(?!(@whiskeysockets/baileys|@adiwajshing/keyed-db|libphonenumber-js)/)"
+  ],
+  "moduleNameMapper": {
+    "^@whiskeysockets/baileys$": "<rootDir>/../node_modules/@whiskeysockets/baileys/lib/index.js"
+  },
+  "preset": "ts-jest/presets/default-esm",
+  "extensionsToTreatAsEsm": [".ts"],
+  "globals": {
+    "ts-jest": {
+      "useESM": true
+    }
   }
 }

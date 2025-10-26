@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { WhatsappModule } from './whatsapp/whatsapp.module';
+import { HelpdeskModule } from './helpdesk/helpdesk.module';
+import { SharedModule } from './shared/shared.module';
+import { TenantModule } from './tenant-management/tenant.module';
 
 @Module({
-  imports: [WhatsappModule],
+  imports: [SharedModule, WhatsappModule, HelpdeskModule, TenantModule],
   controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}

@@ -1,11 +1,11 @@
 meta {
-  name: Enviar Mensagem
+  name: Enviar Mensagem (Helpdesk)
   type: http
   seq: 3
 }
 
 post {
-  url: {{host}}/whatsapp/send
+  url: {{host}}/helpdesk/messages/send
   body: json
   auth: none
 }
@@ -17,7 +17,10 @@ headers {
 body:json {
   {
     "sessionId": "{{sessionId}}",
-    "number": "553391448945",
-    "message": "Olá, mundo! Esta é uma mensagem de teste"
+    "to": "553391448945",
+    "message": "Olá, mundo! Esta é uma mensagem de teste via Helpdesk",
+    "type": "text",
+    "agentId": "agent-001",
+    "conversationId": "conv-001"
   }
 }
