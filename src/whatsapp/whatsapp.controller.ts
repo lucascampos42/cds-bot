@@ -127,7 +127,7 @@ export class WhatsappController {
   async sendMessage(
     @Body() sendMessageDto: SendMessageDto,
   ): Promise<MessageSentResponseDto> {
-    const result = await this.whatsappService.sendMessage(
+    const result = await this.whatsappService.sendMessageLegacy(
       sendMessageDto.sessionId,
       sendMessageDto.to,
       sendMessageDto.message,

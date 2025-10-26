@@ -59,14 +59,18 @@ export class WhatsappGateway
     @ConnectedSocket() client: Socket,
   ): void {
     const { sessionId } = data;
-    
-    if (!this.whatsappService.getSessions().data.sessions.find(s => s.sessionId === sessionId)) {
+
+    if (
+      !this.whatsappService
+        .getSessions()
+        .data.sessions.find((s) => s.sessionId === sessionId)
+    ) {
       void this.whatsappService.createSession(sessionId);
     }
-    
+
     void client.join(`session-${sessionId}`);
     this.sessionClients.set(client.id, sessionId);
-    
+
     client.emit('joined-session', { sessionId });
   }
 
@@ -81,10 +85,12 @@ export class WhatsappGateway
   }
 
   @SubscribeMessage('send-message')
-  handleSendMessage(
-    @MessageBody() data: WebSocketSendMessageDto,
-  ): void {
-    void this.whatsappService.sendMessage(data.sessionId, data.to, data.message);
+  handleSendMessage(@MessageBody() data: WebSocketSendMessageDto): void {
+    void this.whatsappService.sendMessage({
+      sessionId: data.sessionId,
+      to: data.to,
+      message: data.message,
+    });
   }
 
   @SubscribeMessage('get-sessions')
@@ -106,20 +112,24 @@ export class WhatsappGateway
   }
 
   private emitError(sessionId: string, error: string): void {
-    this.server.to(`session-${sessionId}`).emit('error', { 
+    this.server.to(`session-${sessionId}`).emit('error', {
       message: error,
       timestamp: new Date().toISOString(),
     });
   }
 
-  getConnectionStats(): { totalConnections: number; sessionConnections: Record<string, number> } {
+  getConnectionStats(): {
+    totalConnections: number;
+    sessionConnections: Record<string, number>;
+  } {
     const stats = {
       totalConnections: this.sessionClients.size,
       sessionConnections: {} as Record<string, number>,
     };
 
     for (const sessionId of this.sessionClients.values()) {
-      stats.sessionConnections[sessionId] = (stats.sessionConnections[sessionId] || 0) + 1;
+      stats.sessionConnections[sessionId] =
+        (stats.sessionConnections[sessionId] || 0) + 1;
     }
 
     return stats;
