@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Session {
+  id          String   @id @default(cuid())
+  sessionId   String   @unique
+  clientId    String
+  status      String   @default("disconnected")
+  qrCode      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  messages    Message[]
+  contacts    Contact[]
+  
+  @@map("sessions")
+  @@index([sessionId])
+  @@index([clientId])
+  @@index([status])
+}
+
+model Contact {
+  id          String   @id @default(cuid())
+  sessionId   String
+  phoneNumber String
+  name        String?
+  profilePic  String?
+  isGroup     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  session     Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  messages    Message[]
+  
+  @@map("contacts")
+  @@unique([sessionId, phoneNumber])
+  @@index([phoneNumber])
+  @@index([sessionId])
+}
+
+model Message {
+  id          String   @id @default(cuid())
+  sessionId   String
+  contactId   String
+  messageId   String   @unique
+  content     String
+  type        String   @default("text")
+  direction   String   // "inbound" or "outbound"
+  status      String   @default("pending")
+  timestamp   DateTime
+  createdAt   DateTime @default(now())
+  
+  session     Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  contact     Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  
+  @@map("messages")
+  @@index([sessionId])
+  @@index([contactId])
+  @@index([messageId])
+  @@index([direction])
+  @@index([timestamp])
+  @@index([status])
+}

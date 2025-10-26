@@ -1,7 +1,5 @@
 import { Controller, Get, Post, Body, Sse, Param } from '@nestjs/common';
-import { WhatsappService } from './whatsapp.service';
 import { Observable } from 'rxjs';
-import { map, filter } from 'rxjs/operators';
 import {
   ApiTags,
   ApiOperation,
@@ -10,6 +8,10 @@ import {
   ApiResponse,
   ApiExtraModels,
 } from '@nestjs/swagger';
+import { WhatsappService } from './whatsapp.service';
+import { WhatsappStreamService } from './services/whatsapp-stream.service';
+import { WebsocketInfoService } from './services/websocket-info.service';
+import { WEBSOCKET_INFO_SWAGGER } from './swagger/websocket-info.swagger';
 import {
   CreateSessionDto,
   SendMessageDto,
@@ -34,7 +36,11 @@ import {
 )
 @Controller('whatsapp')
 export class WhatsappController {
-  constructor(private readonly whatsappService: WhatsappService) {}
+  constructor(
+    private readonly whatsappService: WhatsappService,
+    private readonly streamService: WhatsappStreamService,
+    private readonly websocketInfoService: WebsocketInfoService,
+  ) {}
 
   @Post('sessions')
   @ApiOperation({
@@ -80,37 +86,7 @@ export class WhatsappController {
   @ApiResponse({ status: 200, description: 'Stream de eventos estabelecido' })
   @ApiResponse({ status: 404, type: ErrorResponseDto })
   stream(@Param('sessionId') sessionId: string): Observable<MessageEvent> {
-    const qrStream = this.whatsappService.getQRCodeStream().pipe(
-      filter((event) => event.sessionId === sessionId),
-      map(
-        (event) =>
-          ({
-            type: 'qr-code',
-            data: JSON.stringify({ qrCode: event.qr }),
-          }) as MessageEvent,
-      ),
-    );
-
-    const statusStream = this.whatsappService.getConnectionStatusStream().pipe(
-      filter((event) => event.sessionId === sessionId),
-      map(
-        (event) =>
-          ({
-            type: 'status',
-            data: JSON.stringify({ status: event.status }),
-          }) as MessageEvent,
-      ),
-    );
-
-    return new Observable((subscriber) => {
-      const qrSubscription = qrStream.subscribe(subscriber);
-      const statusSubscription = statusStream.subscribe(subscriber);
-
-      return () => {
-        qrSubscription.unsubscribe();
-        statusSubscription.unsubscribe();
-      };
-    });
+    return this.streamService.createSessionStream(sessionId);
   }
 
   @Post('send')
@@ -144,89 +120,8 @@ export class WhatsappController {
     summary: 'Informações sobre WebSocket',
     description: 'Retorna informações sobre a API WebSocket disponível.',
   })
-  @ApiResponse({
-    status: 200,
-    description: 'Informações sobre WebSocket',
-    schema: {
-      type: 'object',
-      properties: {
-        websocket: {
-          type: 'object',
-          properties: {
-            url: { type: 'string', example: 'ws://localhost:3099/whatsapp' },
-            namespace: { type: 'string', example: '/whatsapp' },
-            events: {
-              type: 'object',
-              properties: {
-                client_to_server: {
-                  type: 'array',
-                  items: { type: 'string' },
-                  example: [
-                    'join-session',
-                    'leave-session',
-                    'send-message',
-                    'get-sessions',
-                  ],
-                },
-                server_to_client: {
-                  type: 'array',
-                  items: { type: 'string' },
-                  example: [
-                    'connected',
-                    'qr-code',
-                    'status-change',
-                    'message-received',
-                    'message-sent',
-                    'error',
-                  ],
-                },
-              },
-            },
-          },
-        },
-        advantages: {
-          type: 'array',
-          items: { type: 'string' },
-          example: [
-            'Comunicação bidirecional em tempo real',
-            'Menor latência que HTTP polling',
-            'Recebimento instantâneo de mensagens',
-            'Conexão persistente',
-            'Suporte a múltiplos clientes por sessão',
-          ],
-        },
-      },
-    },
-  })
+  @ApiResponse(WEBSOCKET_INFO_SWAGGER)
   getWebSocketInfo() {
-    return {
-      websocket: {
-        url: 'ws://localhost:3099/whatsapp',
-        namespace: '/whatsapp',
-        events: {
-          client_to_server: [
-            'join-session',
-            'leave-session',
-            'send-message',
-            'get-sessions',
-          ],
-          server_to_client: [
-            'connected',
-            'qr-code',
-            'status-change',
-            'message-received',
-            'message-sent',
-            'error',
-          ],
-        },
-      },
-      advantages: [
-        'Comunicação bidirecional em tempo real',
-        'Menor latência que HTTP polling',
-        'Recebimento instantâneo de mensagens',
-        'Conexão persistente',
-        'Suporte a múltiplos clientes por sessão',
-      ],
-    };
+    return this.websocketInfoService.getWebSocketInfo();
   }
 }

@@ -1,30 +1,170 @@
-# Módulo WhatsApp
+# WhatsApp Module
 
-## Propósito
+Este módulo fornece funcionalidades para integração com WhatsApp Web através de WebSocket e HTTP APIs, com suporte robusto a múltiplas conexões PostgreSQL usando Prisma.
 
-Este módulo é responsável pelo **controle de sessões do WhatsApp** e pela integração com a API oficial do WhatsApp Business. Ele gerencia conexões, autenticação, envio/recebimento de mensagens e eventos em tempo real através de WebSockets.
+## Funcionalidades
 
-## Como o Controle de Sessão Funciona
+- Criação e gerenciamento de sessões WhatsApp
+- Envio de mensagens de texto
+- Stream de eventos em tempo real (QR codes, status de conexão)
+- API WebSocket para comunicação bidirecional
+- Sistema de múltiplas conexões PostgreSQL por cliente
+- Pool de conexões otimizado com health check automático
+- Transações isoladas e logging detalhado
+- Documentação Swagger completa
 
-### Arquitetura de Sessões
+## Arquitetura de Banco de Dados
 
-1. **Criação de Sessão**: Cada usuário/cliente pode ter múltiplas sessões ativas
-2. **Autenticação**: QR Code gerado para pareamento com dispositivo móvel
-3. **Persistência**: Sessões mantidas em memória com possibilidade de reconexão
-4. **WebSocket**: Comunicação em tempo real para eventos (QR Code, status, mensagens)
+### Configuração Multi-Schema
 
-### Fluxo de Autenticação
+O sistema utiliza schemas PostgreSQL separados para cada cliente:
+- Schema padrão: `client_{clientId}`
+- Configuração via variáveis de ambiente no `.env`
 
+### Modelos de Dados
+
+#### Session
+```prisma
+model Session {
+  id          String   @id @default(cuid())
+  sessionId   String   @unique
+  clientId    String
+  status      String   @default("disconnected")
+  qrCode      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
 ```
-Cliente → Criar Sessão → QR Code → Scan Mobile → Conectado → Pronto para Envio
+
+#### Contact
+```prisma
+model Contact {
+  id          String   @id @default(cuid())
+  sessionId   String
+  phoneNumber String
+  name        String?
+  profilePic  String?
+  isGroup     Boolean  @default(false)
+}
 ```
 
-### Estados de Sessão
+#### Message
+```prisma
+model Message {
+  id          String   @id @default(cuid())
+  sessionId   String
+  contactId   String
+  messageId   String   @unique
+  content     String
+  type        String   @default("text")
+  direction   String   // "inbound" or "outbound"
+  status      String   @default("pending")
+  timestamp   DateTime
+}
+```
 
-- `connecting`: Iniciando conexão
-- `qr`: Aguardando scan do QR Code
-- `connected`: Conectado e autenticado
-- `disconnected`: Desconectado (temporário ou permanente)
+## Sistema de Conexões
+
+### ConnectionManager
+
+Gerencia pool de conexões ativas por schema:
+
+```typescript
+// Obter conexão para cliente específico
+const client = await connectionManager.getConnection('cliente123');
+
+// Executar transação isolada
+const result = await connectionManager.executeTransaction('cliente123', async (tx) => {
+  const session = await tx.session.create({
+    data: { sessionId: 'session-123', clientId: 'cliente123' }
+  });
+  return session;
+});
+```
+
+### Health Check Automático
+
+- Verificação a cada 30 segundos
+- Reconexão automática em caso de falha
+- Limpeza de conexões inativas (5+ minutos)
+
+### Logging de Operações
+
+Todas as operações são logadas com:
+- Duração da operação
+- Schema utilizado
+- Status de sucesso/erro
+- Timestamp detalhado
+
+## Guia de Implementação
+
+### 1. Adicionar Novo Cliente
+
+```typescript
+// 1. O schema será criado automaticamente na primeira conexão
+const clientId = 'novo_cliente_123';
+
+// 2. Executar migração do Prisma para o novo schema
+await connectionManager.getConnection(clientId);
+
+// 3. Criar primeira sessão
+const session = await connectionManager.executeTransaction(clientId, async (tx) => {
+  return tx.session.create({
+    data: {
+      sessionId: `session_${Date.now()}`,
+      clientId,
+      status: 'disconnected'
+    }
+  });
+});
+```
+
+### 2. Operações CRUD
+
+#### Criar Mensagem
+```typescript
+const message = await connectionManager.executeTransaction(clientId, async (tx) => {
+  return tx.message.create({
+    data: {
+      sessionId: session.id,
+      contactId: contact.id,
+      messageId: `msg_${Date.now()}`,
+      content: 'Olá!',
+      direction: 'outbound',
+      timestamp: new Date()
+    }
+  });
+});
+```
+
+#### Buscar Mensagens
+```typescript
+const client = await connectionManager.getConnection(clientId);
+const messages = await client.message.findMany({
+  where: { sessionId },
+  include: { contact: true },
+  orderBy: { timestamp: 'desc' }
+});
+```
+
+#### Atualizar Status da Sessão
+```typescript
+await connectionManager.executeTransaction(clientId, async (tx) => {
+  return tx.session.update({
+    where: { sessionId },
+    data: { status: 'connected' }
+  });
+});
+```
+
+### 3. Monitoramento de Saúde
+
+```typescript
+// Verificar saúde de conexão específica
+const isHealthy = await healthCheckService.checkSingleConnection(clientId);
+
+// Health check automático roda a cada 30 segundos via @Cron
+```
 
 ## Estrutura dos Arquivos
 
