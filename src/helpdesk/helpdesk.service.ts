@@ -3,6 +3,13 @@ import { ConversationService } from './services/conversation.service';
 import { WhatsappService } from '../whatsapp/whatsapp.service';
 import { StartConversationDto } from './dto/start-conversation.dto';
 import { SendResponseDto } from './dto/send-response.dto';
+import { 
+  SendMessageDto, 
+  MessageSentResponseDto, 
+  BulkMessageDto, 
+  BulkMessageResponseDto 
+} from './dto/messaging.dto';
+import { MessagingService } from '../shared/services/messaging.service';
 import {
   IHelpdeskService,
   IConversation,
@@ -17,6 +24,7 @@ export class HelpdeskService implements IHelpdeskService {
     private readonly conversationService: ConversationService,
     private readonly interactionService: InteractionService,
     private readonly whatsappService: WhatsappService,
+    private readonly messagingService: MessagingService,
   ) {}
 
   async startConversation(
@@ -73,11 +81,12 @@ export class HelpdeskService implements IHelpdeskService {
       throw new NotFoundException('Conversa não encontrada');
     }
 
-    // Enviar mensagem via WhatsApp
-    await this.whatsappService.sendMessage({
+    // Enviar mensagem via MessagingService
+    await this.messagingService.sendMessage({
       sessionId: conversation.sessionId,
       to: conversation.customerPhone,
       message,
+      type: 'text',
     });
 
     // Registrar interação
@@ -242,5 +251,86 @@ export class HelpdeskService implements IHelpdeskService {
     callback: (conversationId: string, message: string) => void,
   ): void {
     // Implementar sistema de eventos se necessário
+  }
+
+  // === MÉTODOS DE MENSAGERIA ===
+
+  async sendMessage(sendMessageDto: SendMessageDto): Promise<MessageSentResponseDto> {
+    try {
+      const result = await this.messagingService.sendMessage({
+        sessionId: sendMessageDto.sessionId,
+        to: sendMessageDto.to,
+        message: sendMessageDto.message,
+        type: sendMessageDto.type || 'text',
+      });
+
+      return {
+        success: result.success,
+        message: result.message,
+        data: result.data ? {
+          messageId: result.data.messageId,
+          timestamp: result.data.timestamp,
+          conversationId: sendMessageDto.conversationId,
+        } : undefined,
+        error: result.error,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Erro ao enviar mensagem',
+        error: error.message,
+      };
+    }
+  }
+
+  async sendBulkMessages(bulkMessageDto: BulkMessageDto): Promise<BulkMessageResponseDto> {
+    try {
+      const results = await this.messagingService.sendBulkMessages(
+        bulkMessageDto.messages.map(msg => ({
+          sessionId: msg.sessionId,
+          to: msg.to,
+          message: msg.message,
+          type: msg.type || 'text',
+        }))
+      );
+
+      return {
+        success: true,
+        message: 'Mensagens processadas com sucesso',
+        results: results.map((result, index) => ({
+          success: result.success,
+          message: result.message,
+          data: result.data ? {
+            messageId: result.data.messageId,
+            timestamp: result.data.timestamp,
+            conversationId: bulkMessageDto.messages[index].conversationId,
+          } : undefined,
+          error: result.error,
+        })),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Erro ao processar mensagens em lote',
+        results: [],
+      };
+    }
+  }
+
+  async getAvailableSessions() {
+    try {
+      const sessions = await this.messagingService.getAvailableSessions();
+      return {
+        success: true,
+        message: 'Sessões disponíveis recuperadas com sucesso',
+        data: sessions,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: 'Erro ao recuperar sessões disponíveis',
+        error: error.message,
+      };
+    }
   }
 }

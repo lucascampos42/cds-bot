@@ -65,25 +65,7 @@ export class SessionListResponseDto {
   };
 }
 
-export class MessageSentResponseDto {
-  @ApiProperty({
-    description: 'Confirmação do envio da mensagem',
-    example: 'Mensagem enviada com sucesso',
-  })
-  message: string;
 
-  @ApiProperty({
-    description: 'ID único da mensagem enviada',
-    example: 'msg_1234567890',
-  })
-  messageId: string;
-
-  @ApiProperty({
-    description: 'Timestamp do envio',
-    example: '2024-01-15T10:30:00.000Z',
-  })
-  timestamp: string;
-}
 
 export class ErrorResponseDto {
   @ApiProperty({

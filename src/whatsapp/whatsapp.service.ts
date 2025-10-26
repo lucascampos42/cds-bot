@@ -106,59 +106,6 @@ export class WhatsappService implements IWhatsappService {
     };
   }
 
-  async sendMessage(data: IWhatsappMessage): Promise<string> {
-    const session = this.sessions.get(data.sessionId);
-
-    if (!session) {
-      throw new Error(`Sessão ${data.sessionId} não encontrada`);
-    }
-
-    try {
-      const formattedNumber = data.to.includes('@')
-        ? data.to
-        : `${data.to}@s.whatsapp.net`;
-
-      const messageContent: any = { text: data.message };
-
-      if (data.mediaUrl) {
-        switch (data.mediaType) {
-          case 'image':
-            messageContent.image = { url: data.mediaUrl };
-            break;
-          case 'video':
-            messageContent.video = { url: data.mediaUrl };
-            break;
-          case 'document':
-            messageContent.document = { url: data.mediaUrl };
-            break;
-          case 'audio':
-            messageContent.audio = { url: data.mediaUrl };
-            break;
-        }
-      }
-
-      const messageInfo = await session.sendMessage(
-        formattedNumber,
-        messageContent,
-      );
-      const messageId = messageInfo?.key?.id || 'unknown';
-
-      // Notificar callbacks de status
-      const status: IWhatsappMessageStatus = {
-        messageId,
-        status: 'sent',
-        timestamp: new Date(),
-      };
-      this.messageStatusCallbacks.forEach((callback) => callback(status));
-
-      return messageId;
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Erro desconhecido';
-      throw new Error(`Falha ao enviar mensagem: ${errorMessage}`);
-    }
-  }
-
   async getSession(sessionId: string): Promise<IWhatsappSession | null> {
     return this.sessionInfo.get(sessionId) || null;
   }
@@ -176,19 +123,6 @@ export class WhatsappService implements IWhatsappService {
     }
   }
 
-  async sendBulkMessages(messages: IWhatsappMessage[]): Promise<string[]> {
-    const messageIds: string[] = [];
-    for (const message of messages) {
-      try {
-        const messageId = await this.sendMessage(message);
-        messageIds.push(messageId);
-      } catch (error) {
-        messageIds.push('failed');
-      }
-    }
-    return messageIds;
-  }
-
   onMessageReceived(
     callback: (message: IWhatsappMessageReceived) => void,
   ): void {
@@ -201,23 +135,5 @@ export class WhatsappService implements IWhatsappService {
 
   onSessionStatus(callback: (session: IWhatsappSession) => void): void {
     this.sessionStatusCallbacks.push(callback);
-  }
-
-  // Método auxiliar para manter compatibilidade com código existente
-  async sendMessageLegacy(sessionId: string, number: string, message: string) {
-    const messageId = await this.sendMessage({
-      sessionId,
-      to: number,
-      message,
-    });
-
-    return {
-      success: true,
-      message: 'Mensagem enviada com sucesso',
-      messageId,
-      timestamp: new Date().toISOString(),
-      to: number,
-      sessionId,
-    };
   }
 }

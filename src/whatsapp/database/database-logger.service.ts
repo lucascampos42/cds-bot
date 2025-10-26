@@ -15,7 +15,7 @@ export class DatabaseLoggerService {
 
   logOperation(operation: DatabaseOperation): void {
     const logMessage = `[${operation.schema}] ${operation.operation} - ${operation.duration}ms`;
-    
+
     if (operation.success) {
       this.logger.log(logMessage);
     } else {
@@ -29,7 +29,7 @@ export class DatabaseLoggerService {
 
   logTransaction(schema: string, operations: string[], duration: number): void {
     this.logger.log(
-      `[${schema}] TRANSAÇÃO: ${operations.join(', ')} - ${duration}ms`
+      `[${schema}] TRANSAÇÃO: ${operations.join(', ')} - ${duration}ms`,
     );
   }
 }

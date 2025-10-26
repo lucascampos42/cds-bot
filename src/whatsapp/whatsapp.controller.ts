@@ -14,10 +14,8 @@ import { WebsocketInfoService } from './services/websocket-info.service';
 import { WEBSOCKET_INFO_SWAGGER } from './swagger/websocket-info.swagger';
 import {
   CreateSessionDto,
-  SendMessageDto,
   SessionCreatedResponseDto,
   SessionListResponseDto,
-  MessageSentResponseDto,
   ErrorResponseDto,
   QRCodeEventDto,
   StatusEventDto,
@@ -26,10 +24,8 @@ import {
 @ApiTags('WhatsApp')
 @ApiExtraModels(
   CreateSessionDto,
-  SendMessageDto,
   SessionCreatedResponseDto,
   SessionListResponseDto,
-  MessageSentResponseDto,
   ErrorResponseDto,
   QRCodeEventDto,
   StatusEventDto,
@@ -46,7 +42,7 @@ export class WhatsappController {
   @ApiOperation({
     summary: 'Cria uma nova sessão do WhatsApp',
     description:
-      'Inicia uma nova sessão do WhatsApp para autenticação e envio de mensagens.',
+      'Inicia uma nova sessão do WhatsApp para autenticação e gerenciamento de conexão.',
   })
   @ApiBody({ type: CreateSessionDto })
   @ApiResponse({ status: 201, type: SessionCreatedResponseDto })
@@ -89,31 +85,7 @@ export class WhatsappController {
     return this.streamService.createSessionStream(sessionId);
   }
 
-  @Post('send')
-  @ApiOperation({
-    summary: 'Envia uma mensagem de texto',
-    description:
-      'Envia uma mensagem de texto para um número específico através de uma sessão ativa.',
-  })
-  @ApiBody({ type: SendMessageDto })
-  @ApiResponse({ status: 200, type: MessageSentResponseDto })
-  @ApiResponse({ status: 400, type: ErrorResponseDto })
-  @ApiResponse({ status: 404, type: ErrorResponseDto })
-  @ApiResponse({ status: 500, type: ErrorResponseDto })
-  async sendMessage(
-    @Body() sendMessageDto: SendMessageDto,
-  ): Promise<MessageSentResponseDto> {
-    const result = await this.whatsappService.sendMessageLegacy(
-      sendMessageDto.sessionId,
-      sendMessageDto.to,
-      sendMessageDto.message,
-    );
-    return {
-      message: result.message,
-      messageId: result.messageId,
-      timestamp: new Date().toISOString(),
-    };
-  }
+
 
   @Get('websocket-info')
   @ApiOperation({

@@ -84,14 +84,7 @@ export class WhatsappGateway
     }
   }
 
-  @SubscribeMessage('send-message')
-  handleSendMessage(@MessageBody() data: WebSocketSendMessageDto): void {
-    void this.whatsappService.sendMessage({
-      sessionId: data.sessionId,
-      to: data.to,
-      message: data.message,
-    });
-  }
+  // Funcionalidade de envio de mensagem removida - agora é responsabilidade do módulo Helpdesk
 
   @SubscribeMessage('get-sessions')
   handleGetSessions(@ConnectedSocket() client: Socket): void {

@@ -44,10 +44,6 @@ export interface IWhatsappService {
   getAllSessions(): Promise<IWhatsappSession[]>;
   destroySession(sessionId: string): Promise<void>;
 
-  // Envio de mensagens
-  sendMessage(data: IWhatsappMessage): Promise<string>;
-  sendBulkMessages(messages: IWhatsappMessage[]): Promise<string[]>;
-
   // Status e eventos
   onMessageReceived(
     callback: (message: IWhatsappMessageReceived) => void,

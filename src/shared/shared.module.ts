@@ -1,6 +1,10 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
+import { MessagingService } from './services/messaging.service';
+import { WhatsappModule } from '../whatsapp/whatsapp.module';
 
 @Module({
-  exports: [],
+  imports: [forwardRef(() => WhatsappModule)],
+  providers: [MessagingService],
+  exports: [MessagingService],
 })
 export class SharedModule {}
