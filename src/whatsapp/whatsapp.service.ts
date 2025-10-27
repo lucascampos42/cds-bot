@@ -13,9 +13,11 @@ import {
   IWhatsappMessageReceived,
   IWhatsappMessageStatus,
 } from '../shared/interfaces';
+import { EventService } from '../shared/services/event.service';
 
 @Injectable()
 export class WhatsappService implements IWhatsappService {
+  constructor(private readonly eventService: EventService) {}
   private sessions: Map<string, WASocket> = new Map();
   private sessionInfo: Map<string, IWhatsappSession> = new Map();
   public qrCodeSubject = new Subject<{ sessionId: string; qr: string }>();
@@ -41,6 +43,14 @@ export class WhatsappService implements IWhatsappService {
     });
 
     sock.ev.on('creds.update', saveCreds);
+
+    sock.ev.on('messages.upsert', (m) => {
+      m.messages.forEach(async (message) => {
+        if (!message.key.fromMe) {
+          this.eventService.messageReceived.next({ sessionId, message });
+        }
+      });
+    });
 
     sock.ev.on('connection.update', (update) => {
       const { connection, lastDisconnect, qr } = update;
