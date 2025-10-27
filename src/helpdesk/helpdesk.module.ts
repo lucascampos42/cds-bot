@@ -6,11 +6,17 @@ import { HelpdeskController } from './helpdesk.controller';
 import { InteractionService } from './services/interaction.service';
 import { HelpdeskService } from './helpdesk.service';
 import { SharedModule } from '../shared/shared.module';
+import { HelpdeskGateway } from './helpdesk.gateway';
 
 @Module({
   imports: [WhatsappModule, SharedModule],
   controllers: [HelpdeskController],
-  providers: [HelpdeskService, ConversationService, InteractionService, HelpdeskGateway],
+  providers: [
+    HelpdeskService,
+    ConversationService,
+    InteractionService,
+    HelpdeskGateway,
+  ],
   exports: [HelpdeskService],
 })
 export class HelpdeskModule {}

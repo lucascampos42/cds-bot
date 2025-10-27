@@ -9,6 +9,7 @@ import { Server, Socket } from 'socket.io';
 import { EventService } from '../shared/services/event.service';
 import { HelpdeskService } from './helpdesk.service';
 import { WebSocketSendMessageDto } from './dto/websocket-send-message.dto';
+import { MessageType } from './dto/messaging.dto';
 
 @WebSocketGateway({
   namespace: '/helpdesk',
@@ -53,7 +54,7 @@ export class HelpdeskGateway {
       sessionId: data.sessionId,
       to: data.recipient,
       message: data.text,
-      type: 'text'
+      type: MessageType.TEXT
     });
   }
 }
